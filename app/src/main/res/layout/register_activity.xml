@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F0FDFD"
+        android:foregroundTint="#F4F4F4"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Botón para la imagen de perfil -->
+        <Button
+            android:id="@+id/profilePicButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/purple_500"
+            android:minHeight="48dp"
+            android:text="@string/profile_pic_text"
+            android:textColor="@android:color/white" />
+
+        <!-- Imagen de perfil -->
+        <ImageView
+            android:id="@+id/imageViewRegister"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/profile_image_description"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <!-- Nombre -->
+        <EditText
+            android:id="@+id/nameInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="givenName"
+            android:backgroundTint="#040000"
+            android:foregroundTint="#000000"
+            android:foregroundTintMode="add"
+            android:hint="@string/name_hint"
+            android:inputType="text"
+            android:minHeight="48dp" />
+
+        <!-- Apellidos -->
+        <EditText
+            android:id="@+id/lastNameInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="familyName"
+            android:backgroundTint="#040000"
+            android:hint="@string/last_name_hint"
+            android:inputType="text"
+            android:minHeight="48dp" />
+
+        <!-- Fecha de nacimiento -->
+        <EditText
+            android:id="@+id/birthDateInput"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="birthDateFull"
+            android:backgroundTint="#040000"
+            android:focusable="false"
+            android:hint="@string/date_of_birth_hint"
+            android:inputType="date"
+            android:minHeight="48dp" />
+
+        <!-- Teléfono -->
+        <EditText
+            android:id="@+id/phoneNumberInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="phoneNumber"
+            android:backgroundTint="#040000"
+            android:hint="@string/phone_number_hint"
+            android:inputType="phone"
+            android:minHeight="48dp" />
+
+        <!-- Dirección -->
+        <EditText
+            android:id="@+id/addressInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="postalAddress"
+            android:backgroundTint="#040000"
+            android:hint="@string/address_hint"
+            android:inputType="textMultiLine"
+            android:minHeight="48dp" />
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/emailInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="emailAddress"
+            android:backgroundTint="#040000"
+            android:hint="@string/email_hint"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/nicknameInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="emailAddress"
+            android:backgroundTint="#040000"
+            android:hint="@string/nickname_hint"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp" />
+
+        <!-- Contraseña -->
+        <EditText
+            android:id="@+id/passwordInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="password"
+            android:backgroundTint="#040000"
+            android:hint="@string/password_register_hint"
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
+
+        <!-- Confirmar Contraseña -->
+        <EditText
+            android:id="@+id/confirmPasswordInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="password"
+            android:backgroundTint="#040000"
+            android:hint="@string/password_register_hint_confirmation"
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
+
+        <!-- Pasatiempos -->
+        <EditText
+            android:id="@+id/hobbiesInputText"
+            android:layout_width="330dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:autofillHints="text"
+            android:backgroundTint="#040000"
+            android:hint="@string/hobbies_hint"
+            android:inputType="textMultiLine"
+            android:minHeight="48dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#040000"
+            android:text="@string/house_type_text" />
+
+        <!-- Tipo de casa (Spinner) -->
+        <Spinner
+            android:id="@+id/houseTypeComBox"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#040000"
+            android:minHeight="48dp" />
+
+        <!-- Botón de continuar -->
+        <Button
+            android:id="@+id/nextPayButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#040000"
+            android:minHeight="48dp"
+            android:text="@string/next_button_register"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+</ScrollView>

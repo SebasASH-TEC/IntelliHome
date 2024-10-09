@@ -1,0 +1,25 @@
+[versions]
+agp = "8.6.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
+googleServices = "21.2.0"
+facebookSdk = "17.0.2"
+constraintLayout = "2.1.4"  # Añadimos la versión de ConstraintLayout
+tink = "1.6.0"  # Añadimos la versión de Tink
+
+[libraries]
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+google-services = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleServices" }
+facebook-sdk = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookSdk" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
+tink = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tink" }  # Añadimos la dependencia de Tink
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }

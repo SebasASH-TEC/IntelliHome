@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">IntelliHome</string>
+    <string name="username_hint">Usuario</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button_text">Iniciar sesión</string>
+    <string name="register_button_text">Registrarse</string>
+    <string name="forgot_password_text">¿Olvidó su contraseña?</string>
+    <string name="google_sign_in_button">Sign in with Google</string>
+    <string name="facebook_sign_in_button">Sign in</string>
+    <string name="logo_description">Logo of IntelliHome</string>
+    <string name="facebook_logo">Logo of Facebook</string>
+    <string name="profile_image_description">Foto de perfil</string>
+    <string name="name_hint">Nombre</string>
+    <string name="last_name_hint">Apellidos</string>
+    <string name="date_of_birth_hint">Fecha de nacimiento</string>
+    <string name="phone_number_hint">Teléfono</string>
+    <string name="address_hint">Dirección</string>
+    <string name="email_hint">Email</string>
+    <string name="nickname_hint">Apodo</string>
+    <string name="password_register_hint">Contraseña</string>
+    <string name="password_register_hint_confirmation">Confirmar contraseña</string>
+    <string name="hobbies_hint">Pasatiempos</string>
+    <string name="house_type_text">Elija su tipo de casa favorito</string>
+    <string name="profile_pic_text">Foto de perfil</string>
+    <string name="next_button_register">Continuar</string>
+
+    <string name="facebook_app_id">1234</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
+
+
+</resources>
