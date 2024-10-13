@@ -42,4 +42,7 @@ dependencies {
     implementation(libs.google.services)
     implementation(libs.facebook.sdk)
     implementation(libs.tink)
+    implementation(libs.osmdroid)
+    implementation(libs.preference)
+    implementation(libs.play.services.location)
 }

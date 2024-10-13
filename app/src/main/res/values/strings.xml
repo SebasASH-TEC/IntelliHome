@@ -28,5 +28,13 @@
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">56789</string>
 
+    <!-- Toolbar -->
+    <string name="menu_toolbar">Menu</string>
+    <string name="tune_toolbar">Filtro</string>
+    <string name="search_toolbar">Buscar</string>
+    <string name="search_hint_toolbar">Buscar</string>
+    <string name="profile_toolbar">Perfil</string>
+    <string name="section_title">Título</string>
+
 
 </resources>

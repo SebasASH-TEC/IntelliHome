@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
     private void sendLoginDataToServer(String username, String password) {
         new Thread(() -> {
             try {
-                Socket socket = new Socket("172.18.235.156", 1717);
+                Socket socket = new Socket("192.168.101.19", 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 
@@ -95,21 +95,33 @@ public class LoginActivity extends AppCompatActivity {
     private void handleServerResponse(String response) {
         Log.d("LoginActivity", "Server Response: " + response.trim());
 
-        // Dividir la respuesta en partes
-        String[] parts = response.trim().split(":");
-        String status = parts[0]; // "SUCCESS" o "FAIL"
+        // Verificar si la respuesta es válida
+        if (response == null || response.trim().isEmpty()) {
+            Toast.makeText(LoginActivity.this, "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        if (status.equals("SUCCESS")) {
-            String username = parts[1]; // Obtener el nombre de usuario
-            Toast.makeText(LoginActivity.this, "Login exitoso para " + username, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            String errorMessage = "Fallo de login para " + parts[1]; // Obtener el nombre de usuario
-            Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+        try {
+            // Dividir la respuesta en partes
+            String[] parts = response.trim().split(":");
+            String status = parts[0]; // "SUCCESS" o "FAIL"
+
+            if (status.equals("SUCCESS")) {
+                String username = parts[1]; // Obtener el nombre de usuario
+                Toast.makeText(LoginActivity.this, "Login exitoso para " + username, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                String errorMessage = "Fallo de login para " + parts[1]; // Obtener el nombre de usuario
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e("LoginActivity", "Error procesando la respuesta del servidor", e);
+            Toast.makeText(LoginActivity.this, "Error procesando la respuesta: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
     private void setupRegisterButton() {
