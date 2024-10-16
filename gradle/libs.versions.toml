@@ -9,6 +9,9 @@ googleServices = "21.2.0"
 facebookSdk = "17.0.2"
 constraintLayout = "2.1.4"  # Añadimos la versión de ConstraintLayout
 tink = "1.6.0"  # Añadimos la versión de Tink
+osmdroid = "6.1.13" # Versión de OSMDroid
+preference = "1.2.1"
+play_services_location = "21.3.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -20,6 +23,9 @@ google-services = { group = "com.google.android.gms", name = "play-services-auth
 facebook-sdk = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookSdk" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
 tink = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tink" }  # Añadimos la dependencia de Tink
+osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
+preference = { module = "androidx.preference:preference", version.ref = "preference" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play_services_location" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

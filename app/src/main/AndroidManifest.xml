@@ -21,6 +21,9 @@
         android:name="android.permission.READ_MEDIA_AUDIO"
         android:required="false"
         tools:targetApi="33" />
+    <!-- Permisos para ubicación -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <!-- Permisos para versiones anteriores a Android 13 -->
     <uses-permission
