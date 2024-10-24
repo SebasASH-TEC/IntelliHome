@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Mapa -->
+        <org.osmdroid.views.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Coordenadas -->
+        <EditText
+            android:id="@+id/coordinates_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Coordenadas"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Precio por noche -->
+        <EditText
+            android:id="@+id/price_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Precio por noche"
+            android:layout_marginBottom="8dp"
+            android:focusable="false"
+            android:clickable="true" />
+
+        <!-- Regulaciones y leyes -->
+        <EditText
+            android:id="@+id/rules_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Regulaciones y leyes"
+            android:layout_marginBottom="8dp"
+            android:focusable="false"
+            android:clickable="true" />
+
+        <!-- Lista de regulaciones seleccionadas -->
+        <TextView
+            android:id="@+id/selected_rules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leyes seleccionadas:"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Botón para eliminar regulaciones -->
+        <Button
+            android:id="@+id/remove_rule_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Eliminar Regulaciones"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Disponibilidad -->
+        <EditText
+            android:id="@+id/availability_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Disponibilidad"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Título: Características -->
+        <TextView
+            android:id="@+id/features_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Características"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Spinner para seleccionar amenidades -->
+        <Spinner
+            android:id="@+id/features_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Amenidades seleccionadas -->
+        <TextView
+            android:id="@+id/selected_features"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Amenidades seleccionadas:"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Botón para eliminar amenidades -->
+        <Button
+            android:id="@+id/remove_feature_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Eliminar Amenidades"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Botón para subir fotos -->
+        <Button
+            android:id="@+id/upload_photos_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir Fotos"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/selected_photos_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fotos seleccionadas:"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+
+
+        <!-- Botón para guardar propiedad -->
+        <Button
+            android:id="@+id/save_property_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guardar Propiedad" />
+
+    </LinearLayout>
+</ScrollView>
