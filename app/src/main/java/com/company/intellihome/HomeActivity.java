@@ -217,10 +217,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<String> items = new ArrayList<>();
+        items.add("Añadir propiedad"); // Elemento para añadir propiedad
         for (int i = 0; i < 10; i++) {
             items.add("Item " + i);
         }
-        RecyclerView.Adapter adapter = new SimpleAdapter(items);
+        SimpleAdapter adapter = new SimpleAdapter(items, this); // Pasa el contexto
         recyclerView.setAdapter(adapter);
     }
 
@@ -305,9 +306,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder> {
 
         private List<String> items;
+        private HomeActivity homeActivity; // Para manejar la actividad
 
-        public SimpleAdapter(List<String> items) {
+        public SimpleAdapter(List<String> items, HomeActivity activity) {
             this.items = items;
+            this.homeActivity = activity; // Guarda la actividad
         }
 
         @NonNull
@@ -321,6 +324,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             holder.textView.setText(items.get(position));
+            holder.itemView.setOnClickListener(v -> {
+                // Aquí puedes manejar el evento de clic para el elemento "Añadir propiedad"
+                if (position == 0) {
+                    Intent intent = new Intent(homeActivity, AddPropertyActivity.class);
+                    homeActivity.startActivity(intent); // Inicia la nueva actividad
+                }
+            });
         }
 
         @Override
