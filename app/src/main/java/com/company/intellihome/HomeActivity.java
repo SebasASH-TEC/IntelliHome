@@ -1,22 +1,34 @@
 package com.company.intellihome;
 
+import static com.company.intellihome.R.*;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +36,8 @@ import androidx.preference.PreferenceManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
+
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -34,8 +48,9 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private DrawerLayout drawerLayout;
     private ImageView menuButton;
     private ImageView filtersButton;
     private ImageView searchButton;
@@ -43,6 +58,7 @@ public class HomeActivity extends AppCompatActivity {
     private EditText searchEditText;
     private RecyclerView recyclerView;
     private MapView mapView;
+    private Fragment selectedFragment;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -64,10 +80,59 @@ public class HomeActivity extends AppCompatActivity {
         searchEditText = findViewById(R.id.search_edit_text);
         recyclerView = findViewById(R.id.recycler_view);
         mapView = findViewById(R.id.mapView);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
 
         setupMap();
         setupButtonListeners();
         setupRecyclerView();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item)
+    {
+        int id = item.getItemId();
+        if (id == R.id.nav_user)
+        {
+            selectedFragment = new User_Fragment();
+            Toast.makeText(this, "Arrendatario seleccionado", Toast.LENGTH_SHORT).show();
+        }
+        else if (id == R.id.nav_owner)
+        {
+            selectedFragment = new Owner_Fragment();
+            Toast.makeText(this, "Propietario seleccionado", Toast.LENGTH_SHORT).show();
+        }
+        else if (id == R.id.nav_lights)
+        {
+            Intent intent = new Intent(this, LightsActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+        if (selectedFragment != null)
+        {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, selectedFragment)
+                    .commit();
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START))
+        {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else
+        {
+            super.onBackPressed();
+        }
     }
 
     private void setupMap() {
@@ -125,8 +190,19 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupButtonListeners() {
-        menuButton.setOnClickListener(v -> Toast.makeText(HomeActivity.this, "Menú seleccionado", Toast.LENGTH_SHORT).show());
-        filtersButton.setOnClickListener(v -> Toast.makeText(HomeActivity.this, "Filtros seleccionados", Toast.LENGTH_SHORT).show());
+        menuButton.setOnClickListener(v ->
+        {
+            Toast.makeText(this, "Menú seleccionado", Toast.LENGTH_SHORT).show();
+            if (drawerLayout.isDrawerOpen(GravityCompat.START))
+            {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+            else
+            {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+        filtersButton.setOnClickListener(v -> showFilterMenu());
         searchButton.setOnClickListener(v -> {
             String query = searchEditText.getText().toString();
             if (!query.isEmpty()) {
@@ -147,6 +223,84 @@ public class HomeActivity extends AppCompatActivity {
         }
         SimpleAdapter adapter = new SimpleAdapter(items, this); // Pasa el contexto
         recyclerView.setAdapter(adapter);
+    }
+
+    protected void showFilterMenu()
+    {
+        Toast.makeText(this, "Filtros seleccionado", Toast.LENGTH_SHORT).show();
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View filterView = inflater.inflate(R.layout.filtrer_menu, null);
+        int width = (int) (300 * getResources().getDisplayMetrics().density);
+        final PopupWindow popupWindow = new PopupWindow(filterView, 900,
+                1500, true);
+
+        //Instancias de todos los elementos de los filtros de búsqueda
+        TextView priceValue = filterView.findViewById(id.priceValue);
+        TextView personValue = filterView.findViewById(id.personText);
+        SeekBar priceSeekBar = filterView.findViewById(id.priceSeekBar);
+        SeekBar personSeekBar = filterView.findViewById(id.personSeekBar);
+        Button applyFilters = filterView.findViewById(id.applyFiltersButton);
+        //Amenidades
+        CheckBox kitchen = filterView.findViewById(id.kitchenCheckBox);
+        CheckBox acondicionador = filterView.findViewById(id.airCheckBox);
+        CheckBox calefaccion = filterView.findViewById(id.calefacciónCheckBox);
+        CheckBox jardin = filterView.findViewById(id.gardenCheckBox);
+        CheckBox wifi = filterView.findViewById(id.wifiCheckBox);
+        CheckBox tv = filterView.findViewById(id.tvCheckBox);
+        CheckBox lavadora = filterView.findViewById(id.washerdryerCheckBox);
+        CheckBox piscina = filterView.findViewById(id.poolCheckBox);
+        CheckBox parrilla = filterView.findViewById(id.parrilaCheckBox);
+        CheckBox terraza = filterView.findViewById(id.terraceCheckBox);
+        CheckBox gimnasio = filterView.findViewById(id.gymCheckBox);
+        CheckBox garaje = filterView.findViewById(id.garageCheckBox);
+        CheckBox seguridad = filterView.findViewById(id.securityCheckBox);
+        CheckBox habitacion = filterView.findViewById(id.suiteCheckBox);
+        CheckBox microondas = filterView.findViewById(id.microwaveCheckBox);
+        CheckBox lavavajillas = filterView.findViewById(id.dishwasherCheckBox);
+        CheckBox coffemaker = filterView.findViewById(id.coffemakerCheckBox);
+        CheckBox ropa = filterView.findViewById(id.clothesCheckBox);
+        CheckBox areascomunes = filterView.findViewById(id.commonareasCheckBox);
+        CheckBox cama = filterView.findViewById(id.bedCheckBox);
+        CheckBox limpieza = filterView.findViewById(id.cleanCheckBox);
+        CheckBox transporte = filterView.findViewById(id.transportCheckBox);
+        CheckBox mascotas = filterView.findViewById(id.petsCheckBox);
+        CheckBox restaurantes = filterView.findViewById(id.shopCheckBox);
+        CheckBox sueloradiante = filterView.findViewById(id.sueloradianteCheckBox);
+        CheckBox escritorio = filterView.findViewById(id.deskCheckBox);
+        CheckBox entretenimiento = filterView.findViewById(id.entertainmentCheckBox);
+        CheckBox chimenea = filterView.findViewById(id.chimeneaCheckBox);
+        CheckBox internet = filterView.findViewById(id.internetCheckBox);
+
+        applyFilters.setOnClickListener(v -> Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show());
+
+        personSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                personValue.setText("Cant. Personas: " + progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        priceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                priceValue.setText("Precio: $" + progress);
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+
+
+        popupWindow.showAtLocation(findViewById(R.id.filters_button), Gravity.CENTER, 0, 0);
     }
 
     public static class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder> {
