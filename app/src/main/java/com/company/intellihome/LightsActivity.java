@@ -77,17 +77,17 @@ public class LightsActivity extends AppCompatActivity {
     } private boolean isInCuarto2(float x, float y) {
         return (x > 700 && x < 900 && y > 200 && y < 750);
     } private boolean isInCuarto3(float x, float y) {
-        return (x > 500 && x < 1500 && y > 250 && y < 550);
+        return (x > 700 && x < 1000 && y > 1000 && y < 1550);
     } private boolean isBaño1(float x, float y) {
-        return (x > 300 && x < 500 && y > 1100 && y < 1400);
+        return (x > 400 && x < 550 && y > 600 && y < 900);
     } private boolean isInBaño2(float x, float y) {
-        return (x > 1000 && x < 2500 && y > 900 && y < 1000);
+        return (x > 700 && x < 900 && y > 750 && y < 1000);
     } private boolean isInCocina(float x, float y) {
-        return (x > 400 && x < 600 && y > 500 && y < 700);
+        return (x > 300 && x < 450 && y > 1400 && y < 1600);
     } private boolean isInLimpieza(float x, float y) {
-        return (x > 475 && x < 800 && y > 100 && y < 1400);
+        return (x > 475 && x < 800 && y > 1400 && y < 1600);
     } private boolean isInGaraje(float x, float y) {
-        return (x > 600 && x < 800 && y > 300 && y < 700);
+        return (x > 300 && x < 1000 && y > 1750 && y < 2000);
     }
 
     private void toogleLight(String room)
