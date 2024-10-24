@@ -3,6 +3,7 @@ package com.company.intellihome;
 import static com.company.intellihome.R.*;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -101,6 +103,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         {
             selectedFragment = new Owner_Fragment();
             Toast.makeText(this, "Propietario seleccionado", Toast.LENGTH_SHORT).show();
+        }
+        else if (id == R.id.nav_lights)
+        {
+            Intent intent = new Intent(this, LightsActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         if (selectedFragment != null)
@@ -216,7 +224,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setAdapter(adapter);
     }
 
-    private void showFilterMenu()
+    protected void showFilterMenu()
     {
         Toast.makeText(this, "Filtros seleccionado", Toast.LENGTH_SHORT).show();
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -225,11 +233,42 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         final PopupWindow popupWindow = new PopupWindow(filterView, 900,
                 1500, true);
 
+        //Instancias de todos los elementos de los filtros de búsqueda
         TextView priceValue = filterView.findViewById(id.priceValue);
         TextView personValue = filterView.findViewById(id.personText);
         SeekBar priceSeekBar = filterView.findViewById(id.priceSeekBar);
         SeekBar personSeekBar = filterView.findViewById(id.personSeekBar);
         Button applyFilters = filterView.findViewById(id.applyFiltersButton);
+        //Amenidades
+        CheckBox kitchen = filterView.findViewById(id.kitchenCheckBox);
+        CheckBox acondicionador = filterView.findViewById(id.airCheckBox);
+        CheckBox calefaccion = filterView.findViewById(id.calefacciónCheckBox);
+        CheckBox jardin = filterView.findViewById(id.gardenCheckBox);
+        CheckBox wifi = filterView.findViewById(id.wifiCheckBox);
+        CheckBox tv = filterView.findViewById(id.tvCheckBox);
+        CheckBox lavadora = filterView.findViewById(id.washerdryerCheckBox);
+        CheckBox piscina = filterView.findViewById(id.poolCheckBox);
+        CheckBox parrilla = filterView.findViewById(id.parrilaCheckBox);
+        CheckBox terraza = filterView.findViewById(id.terraceCheckBox);
+        CheckBox gimnasio = filterView.findViewById(id.gymCheckBox);
+        CheckBox garaje = filterView.findViewById(id.garageCheckBox);
+        CheckBox seguridad = filterView.findViewById(id.securityCheckBox);
+        CheckBox habitacion = filterView.findViewById(id.suiteCheckBox);
+        CheckBox microondas = filterView.findViewById(id.microwaveCheckBox);
+        CheckBox lavavajillas = filterView.findViewById(id.dishwasherCheckBox);
+        CheckBox coffemaker = filterView.findViewById(id.coffemakerCheckBox);
+        CheckBox ropa = filterView.findViewById(id.clothesCheckBox);
+        CheckBox areascomunes = filterView.findViewById(id.commonareasCheckBox);
+        CheckBox cama = filterView.findViewById(id.bedCheckBox);
+        CheckBox limpieza = filterView.findViewById(id.cleanCheckBox);
+        CheckBox transporte = filterView.findViewById(id.transportCheckBox);
+        CheckBox mascotas = filterView.findViewById(id.petsCheckBox);
+        CheckBox restaurantes = filterView.findViewById(id.shopCheckBox);
+        CheckBox sueloradiante = filterView.findViewById(id.sueloradianteCheckBox);
+        CheckBox escritorio = filterView.findViewById(id.deskCheckBox);
+        CheckBox entretenimiento = filterView.findViewById(id.entertainmentCheckBox);
+        CheckBox chimenea = filterView.findViewById(id.chimeneaCheckBox);
+        CheckBox internet = filterView.findViewById(id.internetCheckBox);
 
         applyFilters.setOnClickListener(v -> Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show());
 

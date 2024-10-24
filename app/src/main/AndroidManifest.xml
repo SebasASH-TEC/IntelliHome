@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Especifica que la cámara no es requerida -->
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
-
-    <!-- Permisos necesarios -->
+        android:required="false" /> <!-- Permisos necesarios -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
         android:name="android.permission.READ_MEDIA_IMAGES"
@@ -20,21 +17,16 @@
     <uses-permission
         android:name="android.permission.READ_MEDIA_AUDIO"
         android:required="false"
-        tools:targetApi="33" />
-    <!-- Permisos para ubicación -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
-    <!-- Permisos para versiones anteriores a Android 13 -->
+        tools:targetApi="33" /> <!-- Permisos para ubicación -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Permisos para versiones anteriores a Android 13 -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- Permiso de internet -->
-    <uses-permission android:name="android.permission.INTERNET"/>
+        android:maxSdkVersion="28" /> <!-- Permiso de internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -46,27 +38,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IntelliHome"
         tools:targetApi="31">
-
-
+        <activity
+            android:name=".LightsActivity"
+            android:exported="false" />
         <!-- LoginActivity es la actividad principal con el filtro MAIN y LAUNCHER -->
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeActivity"
-            android:exported="true"/>
-
-        <!-- RegisterActivity no necesita el filtro de MAIN y LAUNCHER -->
-        <activity android:name=".RegisterActivity"
-            android:exported="true" />
-
-        <!-- Metadatos para el SDK de Facebook -->
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
-
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true" /> <!-- RegisterActivity no necesita el filtro de MAIN y LAUNCHER -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true" /> <!-- Metadatos para el SDK de Facebook -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
     </application>
 
 </manifest>

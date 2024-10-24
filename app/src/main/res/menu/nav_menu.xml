@@ -17,6 +17,11 @@
             android:icon="@drawable/nav_home"
             android:title="Owner" />
 
+        <item
+            android:id="@+id/nav_lights"
+            android:icon="@drawable/nav_lights"
+            android:title="Lights House"/>
+
     </group>
 
 
