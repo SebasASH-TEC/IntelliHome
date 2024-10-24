@@ -1,8 +1,13 @@
 package com.company.intellihome;
 
-import java.io.*;
-import java.net.*;
+import android.util.Log;
+import org.json.JSONException;
 import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class ESP32Controller {
 
@@ -11,6 +16,7 @@ public class ESP32Controller {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
+    private static final String TAG = "ESP32Controller";
 
     // Constructor to initialize IP address and port
     public ESP32Controller(String ipAddress, int port) {
@@ -19,20 +25,21 @@ public class ESP32Controller {
     }
 
     // Connect to the ESP32 device
-    public void connect() throws IOException {
+    public boolean connect() {
         try {
             socket = new Socket(esp32IPAddress, esp32Port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("Connected to ESP32 at " + esp32IPAddress + ":" + esp32Port);
+            Log.d(TAG, "Connected to ESP32 at " + esp32IPAddress + ":" + esp32Port);
+            return true;
         } catch (IOException e) {
-            System.err.println("Unable to connect to ESP32: " + e.getMessage());
-            throw e;
+            Log.e(TAG, "Unable to connect to ESP32: " + e.getMessage());
+            return false;
         }
     }
 
     // Send a command to control the GPIO on the ESP32
-    public void sendCommand(String gpioCommand) {
+    public String sendCommand(String gpioCommand) {
         try {
             // Create a JSON object with the command
             JSONObject jsonCommand = new JSONObject();
@@ -40,15 +47,26 @@ public class ESP32Controller {
 
             // Send the JSON command to ESP32
             out.println(jsonCommand.toString());
-            System.out.println("Sent command: " + jsonCommand.toString());
+            Log.d(TAG, "Sent command: " + jsonCommand.toString());
 
             // Read the response from ESP32
             String response = in.readLine();
             if (response != null) {
-                System.out.println("ESP32 Response: " + response);
+                Log.d(TAG, "ESP32 Response: " + response);
+                return response;
+            } else {
+                Log.e(TAG, "No response received from ESP32.");
+                return "No response";
             }
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON error: " + e.getMessage());
+            return "JSON error";
+        } catch (IOException e) {
+            Log.e(TAG, "IO error while sending command: " + e.getMessage());
+            return "IO error";
         } catch (Exception e) {
-            System.err.println("Error sending command: " + e.getMessage());
+            Log.e(TAG, "Unexpected error: " + e.getMessage());
+            return "Unexpected error";
         }
     }
 
@@ -58,34 +76,30 @@ public class ESP32Controller {
             if (in != null) in.close();
             if (out != null) out.close();
             if (socket != null) socket.close();
-            System.out.println("Disconnected from ESP32.");
+            Log.d(TAG, "Disconnected from ESP32.");
         } catch (IOException e) {
-            System.err.println("Error disconnecting from ESP32: " + e.getMessage());
+            Log.e(TAG, "Error disconnecting from ESP32: " + e.getMessage());
         }
     }
 
-    // Main method to test the class
+    // Main method to test the class (for testing purposes only, not used in Android app)
     public static void main(String[] args) {
-        ESP32Controller controller = new ESP32Controller("192.168.1.100", 5000); // Replace with your ESP32 IP address
+        ESP32Controller controller = new ESP32Controller("192.168.18.203", 5000); // Replace with your ESP32 IP address
 
-        try {
-            // Connect to ESP32
-            controller.connect();
-
+        if (controller.connect()) {
             // Turn the LED on
             controller.sendCommand("on");
-            Thread.sleep(2000);  // Wait for 2 seconds
+            try {
+                Thread.sleep(2000);  // Wait for 2 seconds
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Sleep interrupted: " + e.getMessage());
+            }
 
             // Turn the LED off
             controller.sendCommand("off");
 
             // Disconnect from ESP32
             controller.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
-
-
-
