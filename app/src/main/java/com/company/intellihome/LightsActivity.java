@@ -16,27 +16,28 @@ import androidx.core.view.WindowInsetsCompat;
 public class LightsActivity extends AppCompatActivity {
 
     private ImageView houseMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Habilita el modo de pantalla completa
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_lights);
-        //Configurar para que la pantalla ocupe todo el espacio
+
+        //Configura el layout para que ocupe toda la pantalla y ajuste su padding según los bordes del sistema
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         houseMap = findViewById(R.id.houseMap);
 
-        //Detectar toques en la imagen del plano de la casa
         houseMap.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                if (event.getAction() == MotionEvent.ACTION_DOWN)
-                {
+            public boolean onTouch(View v, MotionEvent event) {
+                //Detecta solo el evento de toque inicial (ACTION_DOWN)
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     float x = event.getX();
                     float y = event.getY();
                     checkRoomTapped(x, y);
@@ -46,8 +47,8 @@ public class LightsActivity extends AppCompatActivity {
         });
     }
 
-    private void checkRoomTapped(float x, float y)
-    {
+    //Función par verificar si el toque corresponde a una habitación y alterna la luz en consecuencia
+    private void checkRoomTapped(float x, float y) {
         if (isInSala(x, y)) {
             toogleLight("Sala");
         } else if (isInCuarto1(x, y)) {
@@ -69,7 +70,7 @@ public class LightsActivity extends AppCompatActivity {
         }
     }
 
-    //Coordenadas de la sala
+    //Métodos para comprobar si las coordenadas del toque están dentro del área de cada habitación
     private boolean isInSala(float x, float y) {
         return (x > 50 && x < 300 && y > 200 && y < 900);
     } private boolean isInCuarto1(float x, float y) {
@@ -90,8 +91,8 @@ public class LightsActivity extends AppCompatActivity {
         return (x > 300 && x < 1000 && y > 1750 && y < 2000);
     }
 
-    private void toogleLight(String room)
-    {
+    //Alterna el estado de la luz de la habitación y muestra un mensaje.
+    private void toogleLight(String room) {
         Toast.makeText(this, room + " lights toogled", Toast.LENGTH_SHORT).show();
     }
 }
