@@ -269,13 +269,14 @@ public class RegisterActivity extends AppCompatActivity {
             registrationData.put("confirmPassword", confirmPassword);
             registrationData.put("hobbies", hobbies);
             registrationData.put("houseType", selectedHouseType);
+            registrationData.put("type", "register");
         } catch (Exception e) {
             Log.e("RegisterActivity", "Error creando JSON para los datos de registro", e);
         }
 
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.100", 1717);
+                Socket socket = new Socket("192.168.0.101", 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 

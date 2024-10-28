@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
     private void sendLoginDataToServer(String username, String password) {
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.100", 1717);
+                Socket socket = new Socket("192.168.0.101", 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 
@@ -162,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
     private void sendForgotPasswordRequest(String email) {
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.100", 1717);
+                Socket socket = new Socket("192.168.0.101", 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 

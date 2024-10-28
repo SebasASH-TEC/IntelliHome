@@ -19,8 +19,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.gson.JsonIOException;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -66,7 +68,7 @@ public class User_Fragment extends Fragment {
     private void fetchProperties() {
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.100", 1717);
+                Socket socket = new Socket("192.168.0.101", 1717);
 
                 //Crea un objeto JSON para solicitar las propiedades al servidor.
                 JSONObject requestData = new JSONObject();
@@ -82,30 +84,14 @@ public class User_Fragment extends Fragment {
 
                 Log.d("ServerResponse", "Respuesta del servidor: " + response);
 
-                //Convierte las respuesta del servidor en un arreglo JSON.
-                JSONArray propertiesArray = new JSONArray(response);
+                //Convierte las respuesta del servidor en una lista de String.
+                String[] jsonArrayString = response.split("(?<=\\}])(?=\\[\\{)");
+                Log.d("PropertiesArray", "Contenido del JSONArray: " + jsonArrayString.toString());
 
                 propertyList.clear();
 
-                //Itera a través de cada objeto en el arreglo de propiedades.
-                for (int i = 0; i < propertiesArray.length(); i++) {
-                    JSONObject propertyJson = propertiesArray.getJSONObject(i);
-
-                    //Extrae los datos
-                    String id = propertyJson.getString("id");
-                    String coordinates = propertyJson.getString("coordinates");
-                    String price = propertyJson.getString("price");
-                    String availability = propertyJson.getString("availability");
-
-                    //Extrae los datos de las caracteristicas y lo convierte en una lista.
-                    JSONArray characteristicsArray = propertyJson.getJSONArray("characteristics");
-                    List<String> characteristics = new ArrayList<>();
-                    for (int j = 0; j < characteristicsArray.length(); j++) {
-                        characteristics.add(characteristicsArray.getString(j));
-                    }
-
-                    propertyList.add(new Property(id, coordinates, price, availability, characteristics));
-                }
+                AddPropertiesInList(jsonArrayString);
+                Log.d("PropertyList", "Contenido de propertyList: " + propertyList.toString());
                 getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
 
                 socket.close();
@@ -115,6 +101,38 @@ public class User_Fragment extends Fragment {
                         Toast.makeText(getContext(), "Error al obtener propiedades.", Toast.LENGTH_SHORT).show());
             }
         }).start();
+    }
+
+    private void AddPropertiesInList(String[] propertiesArray) {
+        //Itera a través de cada objeto en el arreglo de propiedades.
+        for (String arrayString : propertiesArray) {
+            try {
+                //Convierte cada fragmento en un JSONArray
+                JSONArray propiertiesArray = new JSONArray(arrayString);
+
+                //Bucle para extraer objetos JSON
+                for (int i = 0; i < propiertiesArray.length(); i++){
+                    JSONObject propertyJson = propiertiesArray.getJSONObject(i);
+
+                    //Extrae los datos
+                    String id = propertyJson.getString("id");
+                    String coordinates = propertyJson.getString("coordinates");
+                    String price = propertyJson.getString("price");
+                    String availability = propertyJson.getString("availability");
+
+                    //Extrae los datos de las caracteristicas y los convierte en una lista
+                    JSONArray characteristicsArray = propertyJson.getJSONArray("characteristics");
+                    List<String> characteristics = new ArrayList<>();
+                    for (int j = 0; j < characteristicsArray.length(); j++) {
+                        characteristics.add(characteristicsArray.getString(j));
+                    }
+
+                    propertyList.add(new Property(id, coordinates, price, availability, characteristics));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
