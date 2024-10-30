@@ -1,7 +1,9 @@
 package com.company.intellihome;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,6 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class LightsActivity extends AppCompatActivity {
 
@@ -49,26 +59,104 @@ public class LightsActivity extends AppCompatActivity {
 
     //Función par verificar si el toque corresponde a una habitación y alterna la luz en consecuencia
     private void checkRoomTapped(float x, float y) {
+        String roomLight="";
         if (isInSala(x, y)) {
             toogleLight("Sala");
+            roomLight="Living room";
         } else if (isInCuarto1(x, y)) {
             toogleLight("Cuarto 1");
+            roomLight="Room 1";
         } else if (isInCuarto2(x, y)) {
             toogleLight("Cuarto 2");
+            roomLight="Room 2";
         } else if (isInCuarto3(x, y)) {
             toogleLight("Cuarto 3");
+            roomLight="Room 3";
         } else if (isBaño1(x, y)) {
             toogleLight("Baño 1");
+            roomLight="Bathroom 1";
         } else if (isInBaño2(x, y)) {
             toogleLight("Baño 2");
+            roomLight="Bathroom 2";
         } else if (isInCocina(x, y)) {
             toogleLight("Cocina");
+            roomLight="Kitchen";
         } else if (isInLimpieza(x, y)) {
             toogleLight("Cuarto de Lavado");
+            roomLight="Laundry room";
         } else if (isInGaraje(x, y)) {
             toogleLight("Garaje");
+            roomLight="Garage";
+        }else{
+            toogleLight("No seleccionó una habitación valida");
+            roomLight="None";
+        }
+
+        String finalRoomLight = roomLight;
+        new Thread(() -> {
+            try {
+                Socket socket = new Socket("192.168.0.101", 1717);
+                OutputStream outputStream = socket.getOutputStream();
+                PrintWriter writer = new PrintWriter(outputStream, true);
+
+                JSONObject lightData = new JSONObject();
+                lightData.put("type", "lights");
+                lightData.put("room", finalRoomLight);
+
+                writer.println(lightData.toString());
+                writer.flush();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                StringBuilder responseBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseBuilder.append(line);
+                    }
+                String serverResponse = responseBuilder.toString();
+
+                writer.close();
+                reader.close();
+                socket.close();
+
+                runOnUiThread(() -> handleServerResponse(serverResponse));
+
+                } catch (Exception e) {
+                    runOnUiThread(() -> Toast.makeText(LightsActivity.this, "Error al conectar con el servidor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
+            }).start();
+    }
+
+    private void handleServerResponse(String response) {
+        Log.d("LightsActivity", "Server Response: " + response.trim());
+
+        // Verificar si la respuesta es válida
+        if (response == null || response.trim().isEmpty()) {
+            Toast.makeText(LightsActivity.this, "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Dividir la respuesta en partes
+            String[] parts = response.trim().split(":");
+            String status = parts[0]; // "SUCCESS" o "FAIL"
+
+            if (status.equals("SUCCESS")) {
+                String roomLight = parts[1]; // Obtener la habitacion con la que se desea interactuar
+                Toast.makeText(LightsActivity.this, "Interaccion con luz de " + roomLight, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LightsActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                String errorMessage = "Fallo al interactuar con luz de " + parts[1]; // Obtener la habitacion con la que se dessea interactuar
+                Toast.makeText(LightsActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e("LightsActivity", "Error procesando la respuesta del servidor", e);
+            Toast.makeText(LightsActivity.this, "Error procesando la respuesta: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     //Métodos para comprobar si las coordenadas del toque están dentro del área de cada habitación
     private boolean isInSala(float x, float y) {
