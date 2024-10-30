@@ -57,7 +57,7 @@ public class LightsActivity extends AppCompatActivity {
         });
     }
 
-    //Función par verificar si el toque corresponde a una habitación y alterna la luz en consecuencia
+    //Función para verificar si el toque corresponde a una habitación y alterna la luz en consecuencia
     private void checkRoomTapped(float x, float y) {
         String roomLight="";
         if (isInSala(x, y)) {
@@ -95,7 +95,7 @@ public class LightsActivity extends AppCompatActivity {
         String finalRoomLight = roomLight;
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.101", 1717);
+                Socket socket = new Socket("192.168.18.81", 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 
@@ -182,5 +182,63 @@ public class LightsActivity extends AppCompatActivity {
     //Alterna el estado de la luz de la habitación y muestra un mensaje.
     private void toogleLight(String room) {
         Toast.makeText(this, room + " lights toogled", Toast.LENGTH_SHORT).show();
+
     }
+
+    // Método para enviar la solicitud de alternar la luz
+    private void sendToggleLightRequest(String room) {
+        try {
+            // Crear el JSON con el tipo de solicitud y la habitación
+            JSONObject requestData = new JSONObject();
+            requestData.put("type", "toggle_light");
+            requestData.put("room", room);
+
+            // Enviar los datos JSON al servidor
+            sendDataToServer(requestData.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void sendDataToServer(final String jsonData) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Dirección IP y puerto del servidor
+                    String serverIP = "192.168.18.81"; // Reemplaza con la IP de tu servidor
+                    int serverPort = 1717;
+
+                    // Crear la conexión al servidor
+                    Socket socket = new Socket(serverIP, serverPort);
+                    OutputStream outputStream = socket.getOutputStream();
+                    PrintWriter writer = new PrintWriter(outputStream, true);
+
+                    // Enviar el JSON al servidor
+                    writer.println(jsonData);
+                    writer.flush();
+
+                    // Recibir la respuesta del servidor
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String response = reader.readLine();
+
+                    // Manejar la respuesta en el hilo principal
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleServerResponse(response);
+                        }
+                    });
+
+                    // Cerrar recursos
+                    writer.close();
+                    reader.close();
+                    socket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
 }

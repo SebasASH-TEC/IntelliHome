@@ -276,7 +276,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.101", 1717);
+                Socket socket = new Socket("192.168.18.81", 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 
