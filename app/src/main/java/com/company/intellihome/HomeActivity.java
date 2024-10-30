@@ -84,35 +84,33 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         setupMap();
         setupButtonListeners();
         setupRecyclerView();
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item)
-    {
+    //Maneja la selección de opciones en el menú de navegación
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_user)
-        {
+
+        //Identifica la opción y abre el fragmento o actividad correspondiente
+        if (id == R.id.nav_user) {
             selectedFragment = new User_Fragment();
             Toast.makeText(this, "Arrendatario seleccionado", Toast.LENGTH_SHORT).show();
         }
-        else if (id == R.id.nav_owner)
-        {
+        else if (id == R.id.nav_owner) {
             selectedFragment = new Owner_Fragment();
             Toast.makeText(this, "Propietario seleccionado", Toast.LENGTH_SHORT).show();
         }
-        else if (id == R.id.nav_lights)
-        {
+        else if (id == R.id.nav_lights) {
             Intent intent = new Intent(this, LightsActivity.class);
             startActivity(intent);
             finish();
         }
 
-        if (selectedFragment != null)
-        {
+        //Carga el fragmento seleccionado
+        if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, selectedFragment)
                     .commit();
@@ -123,14 +121,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START))
-        {
+    public void onBackPressed() {
+        //Cierra el menú lateral si está abierto, de lo contraio, realiza la acción predeterminada
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        }
-        else
-        {
+        } else {
             super.onBackPressed();
         }
     }
@@ -190,18 +185,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupButtonListeners() {
-        menuButton.setOnClickListener(v ->
-        {
+        menuButton.setOnClickListener(v -> {
             Toast.makeText(this, "Menú seleccionado", Toast.LENGTH_SHORT).show();
-            if (drawerLayout.isDrawerOpen(GravityCompat.START))
-            {
+
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START);
-            }
-            else
-            {
+            } else {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+
         filtersButton.setOnClickListener(v -> showFilterMenu());
         searchButton.setOnClickListener(v -> {
             String query = searchEditText.getText().toString();
@@ -225,16 +218,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setAdapter(adapter);
     }
 
-    protected void showFilterMenu()
-    {
+    //Muestra un menú de filtros en un PopupWindow
+    protected void showFilterMenu() {
         Toast.makeText(this, "Filtros seleccionado", Toast.LENGTH_SHORT).show();
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View filterView = inflater.inflate(R.layout.filtrer_menu, null);
         int width = (int) (300 * getResources().getDisplayMetrics().density);
-        final PopupWindow popupWindow = new PopupWindow(filterView, 900,
-                1500, true);
 
-        //Instancias de todos los elementos de los filtros de búsqueda
+        //Tamaño del popup y configuración de los elementos de la interfaz
+        final PopupWindow popupWindow = new PopupWindow(filterView, 900, 1500, true);
+
+        //Configuración de los elementos de los filtros
         TextView priceValue = filterView.findViewById(id.priceValue);
         TextView personValue = filterView.findViewById(id.personText);
         SeekBar priceSeekBar = filterView.findViewById(id.priceSeekBar);
@@ -289,7 +283,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 priceValue.setText("Precio: $" + progress);
-
             }
 
             @Override
@@ -298,13 +291,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-
-
         popupWindow.showAtLocation(findViewById(R.id.filters_button), Gravity.CENTER, 0, 0);
     }
 
-    public static class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder> {
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder> {
         private List<String> items;
         private HomeActivity homeActivity; // Para manejar la actividad
 

@@ -167,7 +167,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                 System.out.println("JSON Enviado: " + propertyData.toString());
 
                 // Enviar la información al servidor
-                Socket socket = new Socket("192.168.0.100", 1717);
+                Socket socket = new Socket("192.168.0.101", 1717);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 out.println(propertyData.toString());
 
