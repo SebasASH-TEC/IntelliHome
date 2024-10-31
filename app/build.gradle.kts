@@ -46,4 +46,5 @@ dependencies {
     implementation(libs.osmdroid)
     implementation(libs.preference)
     implementation(libs.play.services.location)
+    implementation("androidx.biometric:biometric:1.1.0")
 }
