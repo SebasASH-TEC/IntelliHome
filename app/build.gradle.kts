@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.company.intellihome"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.company.intellihome"
@@ -46,4 +46,5 @@ dependencies {
     implementation(libs.osmdroid)
     implementation(libs.preference)
     implementation(libs.play.services.location)
+    implementation(libs.biometric)
 }

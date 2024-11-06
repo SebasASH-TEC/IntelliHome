@@ -5,6 +5,8 @@ import static com.company.intellihome.R.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricManager;
+import android.hardware.biometrics.BiometricPrompt;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -26,11 +28,13 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 
 import androidx.preference.PreferenceManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -47,6 +51,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -62,6 +67,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
 
+    androidx.biometric.BiometricPrompt biometricPrompt;
+    androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +94,50 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setupMap();
         setupButtonListeners();
         setupRecyclerView();
+
+        androidx.biometric.BiometricManager biometricManager = androidx.biometric.BiometricManager.from(getApplicationContext());
+        switch (biometricManager.canAuthenticate()) {
+            case androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS:
+                Toast.makeText(this, "Biométricos disponibles", Toast.LENGTH_SHORT).show();
+                break;
+            case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                Toast.makeText(this, "No hay hardware biométrico", Toast.LENGTH_SHORT).show();
+                break;
+            case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                Toast.makeText(this, "Hardware biométrico no disponible", Toast.LENGTH_SHORT).show();
+                break;
+            case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                Toast.makeText(this, "No hay credenciales biométricos configuradas", Toast.LENGTH_SHORT).show();
+                break;
+
+        }
+        Executor executor = ContextCompat.getMainExecutor(this);
+
+        biometricPrompt = new androidx.biometric.BiometricPrompt(this, executor, new androidx.biometric.BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errorString) {
+                super.onAuthenticationError(errorCode, errorString);
+                Toast.makeText(getApplicationContext(), "Error de autenticación", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull androidx.biometric.BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(getApplicationContext(), "Autenticación exitosa", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Autenticación fallida", Toast.LENGTH_SHORT).show();
+            }
+        });
+        promptInfo = new androidx.biometric.BiometricPrompt.PromptInfo.Builder().setTitle("Autenticación biométrica")
+                .setDescription("Autenticate para continuar").setDeviceCredentialAllowed(true).build();
+
+        biometricPrompt.authenticate(promptInfo);
+
+
     }
 
     @Override
