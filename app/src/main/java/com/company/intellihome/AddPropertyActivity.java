@@ -10,12 +10,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -54,13 +57,17 @@ public class AddPropertyActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_GALLERY = 101;
     private static final int REQUEST_IMAGE_CAMERA = 102;
 
+    private HomeActivity filtersFeatures = new HomeActivity();
+    private Entities entities = new Entities();
+
     private MapView mapView;
     private EditText coordinatesEditText, priceInput, rulesInput, availabilityInput;
     private Spinner featuresSpinner;
     private TextView selectedFeatures, selectedRules, selectedPhotosText;
     private Button uploadPhotosButton;
+    private List<CheckBox> ListFilters = new ArrayList<>();                             //Se va a usar
     private List<String> rulesList = new ArrayList<>();
-    private List<String> selectedItems = new ArrayList<>();
+    private List<String> selectedItems = new ArrayList<>();                             //Se va a usar
     private List<Uri> selectedPhotosUris = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationClient;
     private Marker currentMarker;
@@ -80,7 +87,6 @@ public class AddPropertyActivity extends AppCompatActivity {
         priceInput = findViewById(R.id.price_input);
         rulesInput = findViewById(R.id.rules_input);
         availabilityInput = findViewById(R.id.availability_input);
-        featuresSpinner = findViewById(R.id.features_spinner);
         selectedFeatures = findViewById(R.id.selected_features);
         selectedRules = findViewById(R.id.selected_rules);
         selectedPhotosText = findViewById(R.id.selected_photos_text);
@@ -90,8 +96,9 @@ public class AddPropertyActivity extends AppCompatActivity {
         Button removeRuleButton = findViewById(R.id.remove_rule_button);
         Button savePropertyButton = findViewById(R.id.save_property_button); // Nuevo botón
 
+
         setupMap();
-        setupSpinner();
+        setupFilters();
         checkPermissions();
 
         availabilityInput.setOnTouchListener((v, event) -> {
@@ -167,7 +174,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                 System.out.println("JSON Enviado: " + propertyData.toString());
 
                 // Enviar la información al servidor
-                Socket socket = new Socket("192.168.0.101", 1717);
+                Socket socket = new Socket(entities.Host, 1717);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 out.println(propertyData.toString());
 
@@ -353,25 +360,37 @@ public class AddPropertyActivity extends AppCompatActivity {
         selectedPhotosText.setText(photosText.toString());
     }
 
-    private void setupSpinner() {
-        String[] amenities = {"Wi-Fi", "Piscina", "Gimnasio", "Aire acondicionado"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, amenities);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        featuresSpinner.setAdapter(adapter);
+    private void setupFilters() {
+//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//        View filterView = inflater.inflate(R.layout.add_property_activity, null);.
+        View filterView = findViewById(android.R.id.content);
 
-        featuresSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String amenity = parent.getItemAtPosition(position).toString();
-                if (!selectedItems.contains(amenity)) {
-                    selectedItems.add(amenity);
-                    updateSelectedFeatures();
-                }
-            }
+        if (filtersFeatures != null) {
+            filtersFeatures.AddAmenidades(filterView, ListFilters);
+            selectedItems.clear();
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+
+            filtersFeatures.CheckBoxSelections(selectedItems, ListFilters);
+            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedItems);
+
+        } else {
+            Log.e("setupFilters", "filtersFeatures es null. Asegúrate de inicializarlo correctamente antes de llamar a setupFilters.");
+        }
+        Log.d("Funcionamiento", "si funciona despues de verificar si es null");
+        Button applyFilters = filterView.findViewById(R.id.acceptFiltrers);
+
+        Log.d("Funcionamiento", "Si consigue el id del boton");
+        applyFilters.setOnClickListener(v -> {
+            Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show();
+
+            selectedItems.clear();
+
+            filtersFeatures.CheckBoxSelections(selectedItems, ListFilters);
+            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedItems);
+            updateSelectedFeatures();
         });
+
+
     }
 
     private void updateSelectedFeatures() {
