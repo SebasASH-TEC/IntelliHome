@@ -57,7 +57,6 @@ import java.util.List;
 import java.io.File;
 import java.util.concurrent.Executor;
 
-
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
@@ -76,6 +75,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private HouseFilters_Fragment.HouseSearch houseSearch;
 
+
+    androidx.biometric.BiometricPrompt biometricPrompt;
+    androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +103,55 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setupMap();
         setupButtonListeners();
         setupRecyclerView();
+
+
+        androidx.biometric.BiometricManager biometricManager = androidx.biometric.BiometricManager.from(getApplicationContext());
+        switch (biometricManager.canAuthenticate()) {
+            case androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS:
+                Toast.makeText(this, "Biométricos disponibles", Toast.LENGTH_SHORT).show();
+                break;
+            case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                Toast.makeText(this, "No hay hardware biométrico", Toast.LENGTH_SHORT).show();
+                break;
+            case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                Toast.makeText(this, "Hardware biométrico no disponible", Toast.LENGTH_SHORT).show();
+                break;
+            case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                Toast.makeText(this, "No hay credenciales biométricos configuradas", Toast.LENGTH_SHORT).show();
+                break;
+
+        }
+        Executor executor = ContextCompat.getMainExecutor(this);
+
+        biometricPrompt = new androidx.biometric.BiometricPrompt(this, executor, new androidx.biometric.BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errorString) {
+                super.onAuthenticationError(errorCode, errorString);
+                Toast.makeText(getApplicationContext(), "Error de autenticación", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull androidx.biometric.BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(getApplicationContext(), "Autenticación exitosa", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Autenticación fallida", Toast.LENGTH_SHORT).show();
+            }
+        });
+        promptInfo = new androidx.biometric.BiometricPrompt.PromptInfo.Builder().setTitle("Autenticación biométrica")
+                .setDescription("Autenticate para continuar").setDeviceCredentialAllowed(true).build();
+
+        biometricPrompt.authenticate(promptInfo);
+
+
+    }
+
+    private void BiometricsApp() {
+
     }
 
     @Override
