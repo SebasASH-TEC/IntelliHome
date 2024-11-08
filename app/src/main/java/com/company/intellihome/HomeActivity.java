@@ -173,7 +173,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
             finish();
         }
-
+        else if (id == R.id.nav_controls){
+            Intent  intent = new Intent(this, ControlsActivity.class);
+            startActivity(intent);
+            finish();
+        }
         //Carga el fragmento seleccionado
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction()

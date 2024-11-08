@@ -27,6 +27,9 @@
         android:theme="@style/Theme.IntelliHome"
         tools:targetApi="31" >
         <activity
+            android:name=".ControlsActivity"
+            android:exported="false"/>
+        <activity
             android:name=".AlquilerActivity"
             android:exported="false" />
         <activity
