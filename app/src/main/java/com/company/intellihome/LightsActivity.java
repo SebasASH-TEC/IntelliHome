@@ -27,6 +27,8 @@ public class LightsActivity extends AppCompatActivity {
 
     private ImageView houseMap;
 
+    private Entities entities = new Entities();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +97,7 @@ public class LightsActivity extends AppCompatActivity {
         String finalRoomLight = roomLight;
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.18.208", 1717);
+                Socket socket = new Socket(entities.Host, 1717);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter writer = new PrintWriter(outputStream, true);
 
