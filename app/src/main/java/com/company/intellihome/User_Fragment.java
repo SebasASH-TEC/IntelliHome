@@ -33,10 +33,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //Fragmento de Arrendatario para manejar la interfaz.
 public class User_Fragment extends Fragment {
+
+    private Entities entities = new Entities();
 
     //Definir diferentes variables
     private RecyclerView recyclerView;
@@ -68,7 +71,7 @@ public class User_Fragment extends Fragment {
     private void fetchProperties() {
         new Thread(() -> {
             try {
-                Socket socket = new Socket("192.168.0.101", 1717);
+                Socket socket = new Socket(entities.Host, 1717);
 
                 //Crea un objeto JSON para solicitar las propiedades al servidor.
                 JSONObject requestData = new JSONObject();
@@ -86,11 +89,11 @@ public class User_Fragment extends Fragment {
 
                 //Convierte las respuesta del servidor en una lista de String.
                 String[] jsonArrayString = response.split("(?<=\\}])(?=\\[\\{)");
-                Log.d("PropertiesArray", "Contenido del JSONArray: " + jsonArrayString.toString());
+                Log.d("PropertiesArray", "Contenido del JSONArray: " + Arrays.toString(jsonArrayString));
 
                 propertyList.clear();
 
-                AddPropertiesInList(jsonArrayString);
+                AddPropertiesInList(jsonArrayString, propertyList);
                 Log.d("PropertyList", "Contenido de propertyList: " + propertyList.toString());
                 getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
 
@@ -103,7 +106,7 @@ public class User_Fragment extends Fragment {
         }).start();
     }
 
-    private void AddPropertiesInList(String[] propertiesArray) {
+    protected void AddPropertiesInList(String[] propertiesArray, List<Property> list) {
         //Itera a través de cada objeto en el arreglo de propiedades.
         for (String arrayString : propertiesArray) {
             try {
@@ -127,7 +130,7 @@ public class User_Fragment extends Fragment {
                         characteristics.add(characteristicsArray.getString(j));
                     }
 
-                    propertyList.add(new Property(id, coordinates, price, availability, characteristics));
+                    list.add(new Property(id, coordinates, price, availability, characteristics));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -176,7 +179,7 @@ public class User_Fragment extends Fragment {
             private TextView availabilityTextView;
             private TextView characteristicsTextView;
 
-            //Inicializa los elemtos de la vista
+            //Inicializa los elementos de la vista
             public PropertyViewHolder(View itemView) {
                 super(itemView);
                 idTextView = itemView.findViewById(R.id.property_id);
@@ -188,11 +191,11 @@ public class User_Fragment extends Fragment {
 
             //Asigna los valores de cada propiedad a los TextViews
             public void bind(Property property) {
-                idTextView.setText(property.getId());
+                //idTextView.setText(property.getId());
                 coordinatesTextView.setText(property.getCoordinates());
                 priceTextView.setText(property.getPrice());
                 availabilityTextView.setText(property.getAvailability());
-                characteristicsTextView.setText(TextUtils.join(",",  property.getCharacteristics()));
+                //characteristicsTextView.setText(TextUtils.join(",",  property.getCharacteristics()));
             }
         }
     }

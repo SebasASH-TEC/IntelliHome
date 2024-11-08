@@ -9,6 +9,7 @@ import android.hardware.biometrics.BiometricManager;
 import android.hardware.biometrics.BiometricPrompt;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,8 +50,11 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.io.File;
 import java.util.concurrent.Executor;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -66,6 +70,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private Fragment selectedFragment;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
+    private File tempFiltersFile;
+    private List<CheckBox> ListFilters;
+
+    private HouseFilters_Fragment.HouseSearch houseSearch;
+
 
     androidx.biometric.BiometricPrompt biometricPrompt;
     androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
@@ -94,6 +103,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setupMap();
         setupButtonListeners();
         setupRecyclerView();
+
 
         androidx.biometric.BiometricManager biometricManager = androidx.biometric.BiometricManager.from(getApplicationContext());
         switch (biometricManager.canAuthenticate()) {
@@ -137,6 +147,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         biometricPrompt.authenticate(promptInfo);
 
+
+    }
+
+    private void BiometricsApp() {
 
     }
 
@@ -251,6 +265,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             String query = searchEditText.getText().toString();
             if (!query.isEmpty()) {
                 Toast.makeText(HomeActivity.this, "Buscando: " + query, Toast.LENGTH_SHORT).show();
+                houseSearch = HouseFilters_Fragment.HouseSearch.newInstance(query);
+
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(id.fragment_container, houseSearch);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
             } else {
                 Toast.makeText(HomeActivity.this, "Por favor, ingresa un término de búsqueda", Toast.LENGTH_SHORT).show();
             }
@@ -274,7 +295,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Toast.makeText(this, "Filtros seleccionado", Toast.LENGTH_SHORT).show();
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View filterView = inflater.inflate(R.layout.filtrer_menu, null);
-        int width = (int) (300 * getResources().getDisplayMetrics().density);
+
+        //Crear una lista para almacenar los checkBox
+        ListFilters = new ArrayList<>();
+        List<String> selectedTextFilters = new ArrayList<>();
 
         //Tamaño del popup y configuración de los elementos de la interfaz
         final PopupWindow popupWindow = new PopupWindow(filterView, 900, 1500, true);
@@ -286,37 +310,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         SeekBar personSeekBar = filterView.findViewById(id.personSeekBar);
         Button applyFilters = filterView.findViewById(id.applyFiltersButton);
         //Amenidades
-        CheckBox kitchen = filterView.findViewById(id.kitchenCheckBox);
-        CheckBox acondicionador = filterView.findViewById(id.airCheckBox);
-        CheckBox calefaccion = filterView.findViewById(id.calefacciónCheckBox);
-        CheckBox jardin = filterView.findViewById(id.gardenCheckBox);
-        CheckBox wifi = filterView.findViewById(id.wifiCheckBox);
-        CheckBox tv = filterView.findViewById(id.tvCheckBox);
-        CheckBox lavadora = filterView.findViewById(id.washerdryerCheckBox);
-        CheckBox piscina = filterView.findViewById(id.poolCheckBox);
-        CheckBox parrilla = filterView.findViewById(id.parrilaCheckBox);
-        CheckBox terraza = filterView.findViewById(id.terraceCheckBox);
-        CheckBox gimnasio = filterView.findViewById(id.gymCheckBox);
-        CheckBox garaje = filterView.findViewById(id.garageCheckBox);
-        CheckBox seguridad = filterView.findViewById(id.securityCheckBox);
-        CheckBox habitacion = filterView.findViewById(id.suiteCheckBox);
-        CheckBox microondas = filterView.findViewById(id.microwaveCheckBox);
-        CheckBox lavavajillas = filterView.findViewById(id.dishwasherCheckBox);
-        CheckBox coffemaker = filterView.findViewById(id.coffemakerCheckBox);
-        CheckBox ropa = filterView.findViewById(id.clothesCheckBox);
-        CheckBox areascomunes = filterView.findViewById(id.commonareasCheckBox);
-        CheckBox cama = filterView.findViewById(id.bedCheckBox);
-        CheckBox limpieza = filterView.findViewById(id.cleanCheckBox);
-        CheckBox transporte = filterView.findViewById(id.transportCheckBox);
-        CheckBox mascotas = filterView.findViewById(id.petsCheckBox);
-        CheckBox restaurantes = filterView.findViewById(id.shopCheckBox);
-        CheckBox sueloradiante = filterView.findViewById(id.sueloradianteCheckBox);
-        CheckBox escritorio = filterView.findViewById(id.deskCheckBox);
-        CheckBox entretenimiento = filterView.findViewById(id.entertainmentCheckBox);
-        CheckBox chimenea = filterView.findViewById(id.chimeneaCheckBox);
-        CheckBox internet = filterView.findViewById(id.internetCheckBox);
+        AddAmenidades(filterView, ListFilters);
 
-        applyFilters.setOnClickListener(v -> Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show());
+        applyFilters.setOnClickListener(v -> {
+            Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show();
+
+            selectedTextFilters.clear();
+
+            CheckBoxSelections(selectedTextFilters, ListFilters);
+            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedTextFilters);
+            int priceProgress = priceSeekBar.getProgress();
+            //int personProgress = personSeekBar.getProgress();
+
+
+            selectedFragment = new HouseFilters_Fragment(selectedTextFilters, priceSeekBar.getProgress(), personSeekBar.getProgress());
+
+            getSupportFragmentManager().beginTransaction().replace(id.fragment_container, selectedFragment).commit();
+
+        });
 
         personSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -343,6 +354,49 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
 
         popupWindow.showAtLocation(findViewById(R.id.filters_button), Gravity.CENTER, 0, 0);
+    }
+
+    protected void CheckBoxSelections(List<String> selected, List<CheckBox> ListFilters) {
+        for (CheckBox checkBox : ListFilters) {
+            if (checkBox != null && checkBox.isChecked()) {
+                selected.add(checkBox.getText().toString());
+            }
+        }
+    }
+
+    protected void AddAmenidades(View filter, List<CheckBox> list) {
+        Log.d("HomeActivity", "Si entra para agregar");
+        list.add(filter.findViewById(id.kitchenCheckBox));
+        Log.d("HomeActivity", "Si agrego el primer id");
+        list.add(filter.findViewById(id.airCheckBox));
+        list.add(filter.findViewById(id.calefacciónCheckBox));
+        list.add(filter.findViewById(id.gardenCheckBox));
+        list.add(filter.findViewById(id.wifiCheckBox));
+        list.add(filter.findViewById(id.tvCheckBox));
+        list.add(filter.findViewById(id.washerdryerCheckBox));
+        list.add(filter.findViewById(id.poolCheckBox));
+        list.add(filter.findViewById(id.parrilaCheckBox));
+        list.add(filter.findViewById(id.terraceCheckBox));
+        list.add(filter.findViewById(id.gymCheckBox));
+        list.add(filter.findViewById(id.garageCheckBox));
+        list.add(filter.findViewById(id.securityCheckBox));
+        list.add(filter.findViewById(id.suiteCheckBox));
+        list.add(filter.findViewById(id.microwaveCheckBox));
+        list.add(filter.findViewById(id.dishwasherCheckBox));
+        list.add(filter.findViewById(id.coffemakerCheckBox));
+        list.add(filter.findViewById(id.clothesCheckBox));
+        list.add(filter.findViewById(id.commonareasCheckBox));
+        list.add(filter.findViewById(id.bedCheckBox));
+        list.add(filter.findViewById(id.cleanCheckBox));
+        list.add(filter.findViewById(id.transportCheckBox));
+        list.add(filter.findViewById(id.petsCheckBox));
+        list.add(filter.findViewById(id.shopCheckBox));
+        list.add(filter.findViewById(id.sueloradianteCheckBox));
+        list.add(filter.findViewById(id.deskCheckBox));
+        list.add(filter.findViewById(id.entertainmentCheckBox));
+        list.add(filter.findViewById(id.chimeneaCheckBox));
+        list.add(filter.findViewById(id.internetCheckBox));
+        Log.d("HomeActivity", "Se agregaron todas las cosas");
     }
 
 
