@@ -338,7 +338,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (!password.matches(".*[A-Z].*")) {
             return "La contraseña debe contener al menos una letra mayúscula.";
         }
-        if (!password.matches(".*[@#$%^&+=!].*")) {
+        if (!password.matches(".*[@#$%^&+=!.?].*")) {
             return "La contraseña debe contener al menos un carácter especial.";
         }
         return null;  // La contraseña es válida
