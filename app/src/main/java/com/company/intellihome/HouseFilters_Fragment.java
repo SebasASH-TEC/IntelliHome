@@ -256,7 +256,7 @@ public class HouseFilters_Fragment extends Fragment {
             }).start();
         }
 
-        public static Entities.Provincias ConvertProvincias(String provincia) {
+        protected static Entities.Provincias ConvertProvincias(String provincia) {
             String normalizedProvincia = Normalizer.normalize(provincia, Normalizer.Form.NFD)
                     .replace("\\p{M}", "").toLowerCase();
 

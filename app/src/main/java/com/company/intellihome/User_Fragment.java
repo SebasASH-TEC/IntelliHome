@@ -1,6 +1,7 @@
 package com.company.intellihome;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -144,6 +145,8 @@ public class User_Fragment extends Fragment {
 
         private List<Property> propertyList;
         private Context context;
+        private static Entities.Provincias Provincia;
+        private static  HouseFilters_Fragment.HouseSearch houseSearch = new HouseFilters_Fragment.HouseSearch();
 
         public PropertyAdapter(List<Property> propertyList, Context context) {
             this.propertyList = propertyList;
@@ -155,7 +158,7 @@ public class User_Fragment extends Fragment {
         //Crea una nueva instancia de ViewHolder inflando el layout de cada ítem de la lista
         public PropertyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(context).inflate(R.layout.property_item, parent, false);
-            return new PropertyViewHolder(view);
+            return new PropertyViewHolder(view, context, propertyList);
         }
 
         @Override
@@ -180,13 +183,31 @@ public class User_Fragment extends Fragment {
             private TextView characteristicsTextView;
 
             //Inicializa los elementos de la vista
-            public PropertyViewHolder(View itemView) {
+            public PropertyViewHolder(View itemView, Context context, List<Property> propertyList) {
                 super(itemView);
                 idTextView = itemView.findViewById(R.id.property_id);
                 coordinatesTextView = itemView.findViewById(R.id.property_coordinates);
                 priceTextView = itemView.findViewById(R.id.property_price);
                 availabilityTextView = itemView.findViewById(R.id.property_availability);
                 characteristicsTextView = itemView.findViewById(R.id.property_characteristics);
+
+                //Manejar los clic en el elemto del RecyclerView
+                itemView.setOnClickListener(v -> {
+                    Log.d("Verificación", "Si toca la propiedad");
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        //Obtener la propiedad que se hizo clic
+                        Property property = propertyList.get(position);
+                        Intent intent = new Intent(context, AlquilerActivity.class);
+
+                        intent.putExtra("property_id", property.getId());
+                        intent.putExtra("property_coordinates", property.getCoordinates());
+                        intent.putExtra("property_price", property.getPrice());
+                        intent.putExtra("property_availability", property.getAvailability());
+                        intent.putExtra("property_amenidades", property.getCharacteristics().toArray(new String[0]));
+                        context.startActivity(intent);
+                    }
+                });
             }
 
             //Asigna los valores de cada propiedad a los TextViews

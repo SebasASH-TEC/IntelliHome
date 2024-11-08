@@ -25,11 +25,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Arrays;    // Para usar Arrays
 import java.util.List;      // Para usar List
@@ -224,6 +226,9 @@ public class RegisterActivity extends AppCompatActivity {
         String password = passwordInputText.getText().toString();
         String confirmPassword = confirmPasswordInputText.getText().toString();
         String hobbies = hobbiesInputText.getText().toString();
+        List<String> noRent = new ArrayList<>();
+        List<String> forRent = new ArrayList<>();
+        List<String> inRent = new ArrayList<>();
 
         if (name.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Por favor complete todos los campos obligatorios", Toast.LENGTH_SHORT).show();
@@ -271,6 +276,13 @@ public class RegisterActivity extends AppCompatActivity {
             registrationData.put("confirmPassword", confirmPassword);
             registrationData.put("hobbies", hobbies);
             registrationData.put("houseType", selectedHouseType);
+
+            //JSONArray forRentArray = new JSONArray(forRent);
+            JSONArray noRentArray = new JSONArray(noRent);
+            JSONArray inRentArray = new JSONArray(inRent);
+            //registrationData.put("forRent", forRentArray);
+            registrationData.put("noRent", noRentArray);
+            registrationData.put("inRent", inRentArray);
             registrationData.put("type", "register");
         } catch (Exception e) {
             Log.e("RegisterActivity", "Error creando JSON para los datos de registro", e);

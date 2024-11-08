@@ -181,7 +181,12 @@ public class AddPropertyActivity extends AppCompatActivity {
                 // Recibir la respuesta del servidor
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String response = in.readLine();
-                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, response, Toast.LENGTH_SHORT).show();
+                    if (response == "Propiedad guardada exitosamente.") {
+                        Log.d("AddProperty", "Si se agrego bien");
+                    }
+                });
 
                 socket.close();
             } catch (Exception e) {
