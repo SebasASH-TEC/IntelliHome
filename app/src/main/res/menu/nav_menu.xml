@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn= "navigation_view">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_user"
+            android:icon="@drawable/nav_house"
+            android:title="User" />
+
+        <item
+            android:id="@+id/nav_owner"
+            android:icon="@drawable/nav_home"
+            android:title="Owner" />
+
+        <item
+            android:id="@+id/nav_lights"
+            android:icon="@drawable/nav_lights"
+            android:title="Lights House"/>
+
+        <item
+            android:id="@+id/nav_controls"
+            android:icon="@drawable/nav_controls"
+            android:title="Controls"/>
+
+    </group>
+
+
+</menu>

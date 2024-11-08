@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Título de la Interfaz -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Control Remoto de Sensores"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Botón de Icono para el Sensor de Humedad y Temperatura -->
+    <ImageButton
+        android:id="@+id/btn_humidity_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_humidity"
+        android:contentDescription="Sensor de Humedad y Temperatura"
+        android:layout_below="@id/tv_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="12dp"/>
+
+    <!-- Botón de Icono para el Sensor de Llama -->
+    <ImageButton
+        android:id="@+id/btn_flame_sensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_flame"
+        android:contentDescription="Sensor de Llama"
+        android:layout_below="@id/btn_humidity_temperature"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="12dp"/>
+
+    <!-- Botón de Icono para el Sensor de Sismo -->
+    <ImageButton
+        android:id="@+id/btn_earthquake_sensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_earthquake"
+        android:contentDescription="Sensor de Sismo"
+        android:layout_below="@id/btn_flame_sensor"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="12dp"/>
+
+    <!-- Botón de Icono para la Fotoresistencia -->
+    <ImageButton
+        android:id="@+id/btn_photoresistor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_photoresistor"
+        android:contentDescription="Fotoresistencia"
+        android:layout_below="@id/btn_earthquake_sensor"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="12dp"/>
+
+</RelativeLayout>
