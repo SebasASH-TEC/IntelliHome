@@ -1,7 +1,7 @@
 package com.company.intellihome;
 
 public class Entities {
-    protected String Host = "192.168.0.101";
+    protected String Host = "192.168.18.207";
 
     protected enum Provincias {
         SAN_JOSE, ALAJUELA, CARTAGO, HEREDIA, GUANACASTE, PUNTARENAS, LIMON
