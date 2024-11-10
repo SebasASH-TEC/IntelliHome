@@ -70,7 +70,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private Fragment selectedFragment;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
-    private File tempFiltersFile;
     private List<CheckBox> ListFilters;
 
     private HouseFilters_Fragment.HouseSearch houseSearch;
