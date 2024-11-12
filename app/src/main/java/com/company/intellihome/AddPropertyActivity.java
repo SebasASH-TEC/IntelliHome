@@ -3,11 +3,13 @@ package com.company.intellihome;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
@@ -44,9 +46,12 @@ import org.osmdroid.views.overlay.Marker;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -62,7 +67,6 @@ public class AddPropertyActivity extends AppCompatActivity {
 
     private MapView mapView;
     private EditText coordinatesEditText, priceInput, rulesInput, availabilityInput;
-    private Spinner featuresSpinner;
     private TextView selectedFeatures, selectedRules, selectedPhotosText;
     private Button uploadPhotosButton;
     private List<CheckBox> ListFilters = new ArrayList<>();                             //Se va a usar
@@ -161,17 +165,20 @@ public class AddPropertyActivity extends AppCompatActivity {
                 propertyData.put("characteristics", new JSONArray(selectedItems));
 
                 // Agregar fotos en Base64 al JSON
-                JSONArray photosArray = new JSONArray();
-                for (Uri photoUri : selectedPhotosUris) {
-                    String base64Photo = encodeImageToBase64(photoUri);
-                    if (base64Photo != null) {
-                        photosArray.put(base64Photo);
-                    }
-                }
-                propertyData.put("photos", photosArray);
+//                JSONArray photosArray = new JSONArray();
+//                for (Uri photoUri : selectedPhotosUris) {
+//                    String base64Photo = encodeImageToBase64(photoUri);
+//                    if (base64Photo != null) {
+//                        photosArray.put(base64Photo);
+//                    }
+//                }
+//                Log.d("Fotos", "Lista de fotos en base 64 tamaño: " + photosArray.length());
+//                propertyData.put("photos", photosArray);
 
                 // Imprimir el JSON para verificar su formato
-                System.out.println("JSON Enviado: " + propertyData.toString());
+//                System.out.println("JSON Enviado: " + propertyData.toString());
+//                Log.d("JSON", "Esto es lo que se envio del JSON: " + propertyData.toString());
+//                Log.d("JSONLENGHT", "Y este es el tamaño: " + propertyData.toString().length());
 
                 // Enviar la información al servidor
                 Socket socket = new Socket(entities.Host, 1717);
@@ -189,6 +196,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                 });
 
                 socket.close();
+                sendPropertyImages(propertyId);
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(this, "Error al enviar la propiedad.", Toast.LENGTH_SHORT).show());
@@ -196,6 +204,33 @@ public class AddPropertyActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void sendPropertyImages(String propertId) {
+        for (Uri photoUri : selectedPhotosUris) {
+            new Thread(() -> {
+                try {
+                    //Construir JSON para la imagen
+                    JSONObject imageData = new JSONObject();
+                    imageData.put("type", "savePhotoProperty");
+                    imageData.put("propertyId", propertId);
+                    imageData.put("photo", encodeImageToBase64(photoUri));
+
+                    //Enviar la imagen al servidor
+                    Socket socket = new Socket(entities.Host, 1717);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    out.println(imageData.toString());
+
+                    //Recibir la respuesta del servidor
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String response = in.readLine();
+                    runOnUiThread(() -> Log.d("PhotoUpload", "Respuesta del servidor: " + response));
+                    socket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> Log.d("PhotoUpload", "Error al enviar la imagen."));
+                }
+            }).start();
+        }
+    }
 
     private String encodeImageToBase64(Uri imageUri) {
         try {
@@ -334,27 +369,51 @@ public class AddPropertyActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && data != null) {
-            if (requestCode == REQUEST_IMAGE_GALLERY) {
-                Uri selectedImageUri = data.getData();
-                if (selectedImageUri != null) {
-                    selectedPhotosUris.add(selectedImageUri);
-                    updateSelectedPhotos();
-                }
-            } else if (requestCode == REQUEST_IMAGE_CAMERA) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
+        if (requestCode == REQUEST_IMAGE_CAMERA && resultCode == RESULT_OK) {
+            Bitmap photo = (Bitmap) data.getExtras().get("Data");
+            try {
                 Uri photoUri = getImageUriFromBitmap(photo);
-                if (photoUri != null) {
-                    selectedPhotosUris.add(photoUri);
-                    updateSelectedPhotos();
-                }
+                selectedPhotosUris.add(photoUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
             }
+
+//            if (requestCode == REQUEST_IMAGE_GALLERY) {
+//                Uri selectedImageUri = data.getData();
+//                if (selectedImageUri != null) {
+//                    selectedPhotosUris.add(selectedImageUri);
+//                    updateSelectedPhotos();
+//                }
+//            } else if (requestCode == REQUEST_IMAGE_CAMERA) {
+//                Bitmap photo = (Bitmap) data.getExtras().get("data");
+//                Uri photoUri = getImageUriFromBitmap(photo);
+//                if (photoUri != null) {
+//                    selectedPhotosUris.add(photoUri);
+//                    updateSelectedPhotos();
+//                }
+//            }
         }
     }
 
-    private Uri getImageUriFromBitmap(Bitmap bitmap) {
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Nueva Foto", null);
-        return Uri.parse(path);
+    private Uri getImageUriFromBitmap(Bitmap bitmap) throws IOException {
+        String uniqueFileName = "Nueva_Foto_" + System.currentTimeMillis() + ".jpg"; // Nombre de archivo único
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, uniqueFileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
+
+        Uri imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if (imageUri != null) {
+            try (OutputStream outputStream = getContentResolver().openOutputStream(imageUri)) {
+                if (outputStream != null) {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                }
+            }
+        } else {
+            throw new IOException("Failed to create new MediaStore record.");
+        }
+        return imageUri;
     }
 
     private void updateSelectedPhotos() {
@@ -366,14 +425,11 @@ public class AddPropertyActivity extends AppCompatActivity {
     }
 
     private void setupFilters() {
-//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//        View filterView = inflater.inflate(R.layout.add_property_activity, null);.
         View filterView = findViewById(android.R.id.content);
 
         if (filtersFeatures != null) {
             filtersFeatures.AddAmenidades(filterView, ListFilters);
             selectedItems.clear();
-
 
             filtersFeatures.CheckBoxSelections(selectedItems, ListFilters);
             Log.d("FiltersSelections", "Filtros seleccionados: " + selectedItems);
@@ -381,17 +437,14 @@ public class AddPropertyActivity extends AppCompatActivity {
         } else {
             Log.e("setupFilters", "filtersFeatures es null. Asegúrate de inicializarlo correctamente antes de llamar a setupFilters.");
         }
-        Log.d("Funcionamiento", "si funciona despues de verificar si es null");
         Button applyFilters = filterView.findViewById(R.id.acceptFiltrers);
 
-        Log.d("Funcionamiento", "Si consigue el id del boton");
         applyFilters.setOnClickListener(v -> {
             Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show();
 
             selectedItems.clear();
 
             filtersFeatures.CheckBoxSelections(selectedItems, ListFilters);
-            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedItems);
             updateSelectedFeatures();
         });
 

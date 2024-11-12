@@ -91,7 +91,8 @@ public class RegisterActivity extends AppCompatActivity {
                     if (extras != null) {
                         Bitmap bitmap = (Bitmap) extras.get("data");
                         if (bitmap != null) {  // Verifica si el bitmap no es nulo
-                            profilePicView.setImageBitmap(bitmap);
+                            Bitmap compressedBitmap = compressBitmap(bitmap, 800);
+                            profilePicView.setImageBitmap(compressedBitmap);
                         } else {
                             Toast.makeText(this, "Error al obtener la imagen", Toast.LENGTH_SHORT).show();
                         }
@@ -348,7 +349,6 @@ public class RegisterActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 Socket socket = new Socket(entities.Host, 1717);
-                //DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
                  BufferedWriter writer = new BufferedWriter(
                          new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
                  );

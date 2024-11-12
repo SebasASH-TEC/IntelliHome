@@ -54,7 +54,7 @@ public class HouseFilters_Fragment extends Fragment {
         userFragment = new User_Fragment();
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new User_Fragment.PropertyAdapter(propertyList, getContext());
+        //adapter = new User_Fragment.PropertyAdapter(propertyList, getContext());
         recyclerView.setAdapter(adapter);
         characteristicsProperty = new ArrayList<>();
 
@@ -173,7 +173,7 @@ public class HouseFilters_Fragment extends Fragment {
             userFragment = new User_Fragment();
             recyclerView = view.findViewById(R.id.recycler_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            adapter = new User_Fragment.PropertyAdapter(propertyList, getContext());
+            //adapter = new User_Fragment.PropertyAdapter(propertyList, getContext());
             recyclerView.setAdapter(adapter);
 
             Log.d("Funcionamiento", "Antes de llamar a fetchSearch");
@@ -192,7 +192,6 @@ public class HouseFilters_Fragment extends Fragment {
         }
 
         public void fetchSearch() {
-            Log.d("featSearch", "Si me llama al inicio");
             new Thread(() -> {
                try {
                    Socket socket = new Socket(entities.Host, 1717);

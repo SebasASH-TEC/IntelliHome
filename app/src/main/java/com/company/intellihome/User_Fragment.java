@@ -2,6 +2,8 @@ package com.company.intellihome;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,11 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +39,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Fragmento de Arrendatario para manejar la interfaz.
 public class User_Fragment extends Fragment {
@@ -46,6 +52,7 @@ public class User_Fragment extends Fragment {
     private RecyclerView recyclerView;
     private PropertyAdapter adapter;
     private List<Property> propertyList = new ArrayList<>();
+    private Map<String, List<Bitmap>> propertyImagesMap = new HashMap<>();
 
     //Función para inflar la interfaz de User_Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,7 +63,7 @@ public class User_Fragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new PropertyAdapter(propertyList, getContext());
+        adapter = new PropertyAdapter(propertyList, getContext(), propertyImagesMap);
         recyclerView.setAdapter(adapter);
 
         fetchProperties();
@@ -85,7 +92,6 @@ public class User_Fragment extends Fragment {
                 //Lee la respuesta del servidor.
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String response = in.readLine();
-
                 Log.d("ServerResponse", "Respuesta del servidor: " + response);
 
                 //Convierte las respuesta del servidor en una lista de String.
@@ -93,11 +99,16 @@ public class User_Fragment extends Fragment {
                 Log.d("PropertiesArray", "Contenido del JSONArray: " + Arrays.toString(jsonArrayString));
 
                 propertyList.clear();
-
                 AddPropertiesInList(jsonArrayString, propertyList);
                 Log.d("PropertyList", "Contenido de propertyList: " + propertyList.toString());
-                getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
 
+                //Solicita imágenes para cada propiedad
+                for (Property property: propertyList) {
+                    fetchPropertyImages(property.getId());
+                }
+
+
+                getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                 socket.close();
             } catch (Exception e){
                 e.printStackTrace();
@@ -139,18 +150,58 @@ public class User_Fragment extends Fragment {
         }
     }
 
+    private void fetchPropertyImages(String propertyId) {
+        new Thread(() -> {
+           try {
+               Socket socket = new Socket(entities.Host, 1717);
+
+               //Crea un objeto JSON para solicitar las imágenes
+               JSONObject requestData = new JSONObject();
+               requestData.put("type", "getImage");
+               requestData.put("property_id", propertyId);
+               requestData.put("image_name", "photo_1.jpg");
+
+               PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+               out.println(requestData.toString());
+
+               BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+               String response = in.readLine();
+               JSONObject jsonResponse = new JSONObject(response);
+               Log.d("Imagen", "Esta es la respuesta: " + response);
+
+               if (jsonResponse.has("image_data")) {
+                   String imageBase64 = jsonResponse.getString("image_data");
+                   byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
+                   Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                   //Almacena a imagen en el mapa de la propiedad
+                   if (!propertyImagesMap.containsKey(propertyId)) {
+                       propertyImagesMap.put(propertyId, new ArrayList<>());
+                   }
+                   propertyImagesMap.get(propertyId).add(decodedImage);
+                   Log.d("Imagen", "Si funciono");
+                   getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+               }
+               Log.d("Imagen2", "No estaba lo de image_data");
+               socket.close();
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+        }).start();
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.PropertyViewHolder> {
 
         private List<Property> propertyList;
         private Context context;
-        private static Entities.Provincias Provincia;
-        private static  HouseFilters_Fragment.HouseSearch houseSearch = new HouseFilters_Fragment.HouseSearch();
+        private Map<String, List<Bitmap>> propertyImagesMap;
 
-        public PropertyAdapter(List<Property> propertyList, Context context) {
+        public PropertyAdapter(List<Property> propertyList, Context context, Map<String, List<Bitmap>> propertyImagesMap) {
             this.propertyList = propertyList;
             this.context = context;
+            this.propertyImagesMap = propertyImagesMap;
         }
 
         @NonNull
@@ -165,7 +216,7 @@ public class User_Fragment extends Fragment {
         //Vincula cada propiedad en la lista con el ViewHolder
         public void onBindViewHolder(PropertyViewHolder holder, int position) {
             Property property = propertyList.get(position);
-            holder.bind(property);
+            holder.bind(property, propertyImagesMap);
         }
 
         @Override
@@ -176,7 +227,8 @@ public class User_Fragment extends Fragment {
 
         //Clase interna para el ViewHolder que maneja la representación de cada ítem.
         static class PropertyViewHolder extends RecyclerView.ViewHolder {
-            private TextView idTextView;
+            private ImageView imageView;
+            //private TextView idTextView;
             private TextView coordinatesTextView;
             private TextView priceTextView;
             private TextView availabilityTextView;
@@ -185,7 +237,7 @@ public class User_Fragment extends Fragment {
             //Inicializa los elementos de la vista
             public PropertyViewHolder(View itemView, Context context, List<Property> propertyList) {
                 super(itemView);
-                idTextView = itemView.findViewById(R.id.property_id);
+                imageView = itemView.findViewById(R.id.property_image);
                 coordinatesTextView = itemView.findViewById(R.id.property_coordinates);
                 priceTextView = itemView.findViewById(R.id.property_price);
                 availabilityTextView = itemView.findViewById(R.id.property_availability);
@@ -211,12 +263,18 @@ public class User_Fragment extends Fragment {
             }
 
             //Asigna los valores de cada propiedad a los TextViews
-            public void bind(Property property) {
-                //idTextView.setText(property.getId());
+            public void bind(Property property, Map<String, List<Bitmap>> propertyImagesMap) {
+
                 coordinatesTextView.setText(property.getCoordinates());
                 priceTextView.setText(property.getPrice());
                 availabilityTextView.setText(property.getAvailability());
-                //characteristicsTextView.setText(TextUtils.join(",",  property.getCharacteristics()));
+
+                List<Bitmap> images = propertyImagesMap.get(property.getId());
+                if (images != null && !images.isEmpty()) {
+                    imageView.setImageBitmap(images.get(0));
+                } else {
+                    imageView.setImageResource(R.drawable.placeholder);
+                }
             }
         }
     }
@@ -254,5 +312,6 @@ public class User_Fragment extends Fragment {
         public List<String> getCharacteristics(){
             return characteristics;
         }
+
     }
 }

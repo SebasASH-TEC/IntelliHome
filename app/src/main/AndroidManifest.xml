@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Permisos para acceso a medios según la versión -->
     <uses-permission
+        android:requestLegacyExternalStorage="true"
         android:name="android.permission.READ_MEDIA_IMAGES"
         tools:targetApi="33" />
     <uses-permission
