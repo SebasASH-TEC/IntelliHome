@@ -74,9 +74,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private HouseFilters_Fragment.HouseSearch houseSearch;
 
-
     androidx.biometric.BiometricPrompt biometricPrompt;
     androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +103,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setupButtonListeners();
         setupRecyclerView();
 
-
         androidx.biometric.BiometricManager biometricManager = androidx.biometric.BiometricManager.from(getApplicationContext());
         switch (biometricManager.canAuthenticate()) {
             case androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS:
@@ -118,7 +117,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
                 Toast.makeText(this, "No hay credenciales biométricos configuradas", Toast.LENGTH_SHORT).show();
                 break;
-
         }
         Executor executor = ContextCompat.getMainExecutor(this);
 
@@ -143,14 +141,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
         promptInfo = new androidx.biometric.BiometricPrompt.PromptInfo.Builder().setTitle("Autenticación biométrica")
                 .setDescription("Autenticate para continuar").setDeviceCredentialAllowed(true).build();
-
         biometricPrompt.authenticate(promptInfo);
-
-
-    }
-
-    private void BiometricsApp() {
-
     }
 
     @Override
@@ -194,6 +185,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Función para configurar el Mapa
     private void setupMap() {
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setBuiltInZoomControls(true);
@@ -207,6 +199,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Función para mostrar la ubicación actual
     private void showCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Task<Location> locationResult = fusedLocationClient.getLastLocation();
@@ -229,6 +222,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
     private void addCircleOverlay(GeoPoint center, double radius) {
         Polygon circle = new Polygon();
         circle.setStrokeColor(0x800000FF);
@@ -248,6 +242,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         mapView.invalidate();
     }
 
+    //Función para configurar el menú Hamburguesa
     private void setupButtonListeners() {
         menuButton.setOnClickListener(v -> {
             Toast.makeText(this, "Menú seleccionado", Toast.LENGTH_SHORT).show();
@@ -270,7 +265,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 transaction.replace(id.fragment_container, houseSearch);
                 transaction.addToBackStack(null);
                 transaction.commit();
-
             } else {
                 Toast.makeText(HomeActivity.this, "Por favor, ingresa un término de búsqueda", Toast.LENGTH_SHORT).show();
             }
@@ -278,6 +272,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         profilePicButton.setOnClickListener(v -> Toast.makeText(HomeActivity.this, "Perfil seleccionado", Toast.LENGTH_SHORT).show());
     }
 
+    //Función para configurar el RecyclerView
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<String> items = new ArrayList<>();
@@ -315,17 +310,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show();
 
             selectedTextFilters.clear();
-
             CheckBoxSelections(selectedTextFilters, ListFilters);
-            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedTextFilters);
-            int priceProgress = priceSeekBar.getProgress();
-            //int personProgress = personSeekBar.getProgress();
-
 
             selectedFragment = new HouseFilters_Fragment(selectedTextFilters, priceSeekBar.getProgress(), personSeekBar.getProgress());
-
             getSupportFragmentManager().beginTransaction().replace(id.fragment_container, selectedFragment).commit();
-
         });
 
         personSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -355,6 +343,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         popupWindow.showAtLocation(findViewById(R.id.filters_button), Gravity.CENTER, 0, 0);
     }
 
+    //Función para agregar en una lista las amenidades seleccionadas
     protected void CheckBoxSelections(List<String> selected, List<CheckBox> ListFilters) {
         for (CheckBox checkBox : ListFilters) {
             if (checkBox != null && checkBox.isChecked()) {
@@ -363,10 +352,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Función para agregar las imagenes de manera visual
     protected void AddAmenidades(View filter, List<CheckBox> list) {
-        Log.d("HomeActivity", "Si entra para agregar");
         list.add(filter.findViewById(id.kitchenCheckBox));
-        Log.d("HomeActivity", "Si agrego el primer id");
         list.add(filter.findViewById(id.airCheckBox));
         list.add(filter.findViewById(id.calefacciónCheckBox));
         list.add(filter.findViewById(id.gardenCheckBox));
@@ -395,7 +383,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         list.add(filter.findViewById(id.entertainmentCheckBox));
         list.add(filter.findViewById(id.chimeneaCheckBox));
         list.add(filter.findViewById(id.internetCheckBox));
-        Log.d("HomeActivity", "Se agregaron todas las cosas");
     }
 
 
@@ -434,6 +421,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             return items.size();
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         public static class ViewHolder extends RecyclerView.ViewHolder {
             public TextView textView;
 

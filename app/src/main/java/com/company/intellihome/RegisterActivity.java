@@ -58,7 +58,6 @@ public class RegisterActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS = 100;
 
     private Entities entities = new Entities();
-
     private Button profilePicButton;
     private EditText nameInputText;
     private EditText lastNameInputText;
@@ -74,7 +73,6 @@ public class RegisterActivity extends AppCompatActivity {
     private Button nextPayButton;
     private ImageView profilePicView;
     private ImageView backspaceImage;
-
     private String selectedHouseType = "";
 
     // Lista de apodos prohibidos
@@ -132,7 +130,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Forzar la aplicación a modo claro
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-
         setContentView(R.layout.register_activity);
 
         // Inicialización de los elementos de la interfaz de usuario
@@ -251,10 +248,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Establecer la fecha máxima seleccionable como la fecha actual
         datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
-
         datePickerDialog.show();
     }
 
+    //Función para enviar los datos para el registro
     private void sendRegistrationData() {
         String name = nameInputText.getText().toString();
         String lastName = lastNameInputText.getText().toString();
@@ -268,7 +265,6 @@ public class RegisterActivity extends AppCompatActivity {
         String hobbies = hobbiesInputText.getText().toString();
         List<String> noRent = new ArrayList<>();
         List<String> inRent = new ArrayList<>();
-
 
         if (name.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Por favor complete todos los campos obligatorios", Toast.LENGTH_SHORT).show();
@@ -384,13 +380,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Si la imagen es más pequeña que el tamaño máximo, no la redimensionamos
         if (ratio >= 1.0f) return original;
-
         int newWidth = Math.round(width * ratio);
         int newHeight = Math.round(height * ratio);
 
         return Bitmap.createScaledBitmap(original, newWidth, newHeight, true);
     }
-
 
     // Método para validar el apodo
     private boolean isNicknameProhibited(String nickname) {

@@ -45,7 +45,6 @@ import java.util.Map;
 
 //Fragmento de Arrendatario para manejar la interfaz.
 public class User_Fragment extends Fragment {
-
     private Entities entities = new Entities();
 
     //Definir diferentes variables
@@ -58,7 +57,6 @@ public class User_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_, container, false);
-
         HomeActivity homeActivity = (HomeActivity) getActivity();
 
         recyclerView = view.findViewById(R.id.recycler_view);
@@ -92,21 +90,17 @@ public class User_Fragment extends Fragment {
                 //Lee la respuesta del servidor.
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String response = in.readLine();
-                Log.d("ServerResponse", "Respuesta del servidor: " + response);
 
                 //Convierte las respuesta del servidor en una lista de String.
                 String[] jsonArrayString = response.split("(?<=\\}])(?=\\[\\{)");
-                Log.d("PropertiesArray", "Contenido del JSONArray: " + Arrays.toString(jsonArrayString));
 
                 propertyList.clear();
                 AddPropertiesInList(jsonArrayString, propertyList);
-                Log.d("PropertyList", "Contenido de propertyList: " + propertyList.toString());
 
                 //Solicita imágenes para cada propiedad
                 for (Property property: propertyList) {
                     fetchPropertyImages(property.getId());
                 }
-
 
                 getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                 socket.close();
@@ -118,6 +112,7 @@ public class User_Fragment extends Fragment {
         }).start();
     }
 
+    //Función para agregar las propiedades en una lista
     protected void AddPropertiesInList(String[] propertiesArray, List<Property> list) {
         //Itera a través de cada objeto en el arreglo de propiedades.
         for (String arrayString : propertiesArray) {
@@ -128,7 +123,6 @@ public class User_Fragment extends Fragment {
                 //Bucle para extraer objetos JSON
                 for (int i = 0; i < propiertiesArray.length(); i++){
                     JSONObject propertyJson = propiertiesArray.getJSONObject(i);
-                    Log.d("Verificacion propiedades", "Esta es la propiedad y lo que trae: " + Arrays.toString(propertiesArray));
 
                     //Extrae los datos
                     String id = propertyJson.getString("id");
@@ -143,6 +137,7 @@ public class User_Fragment extends Fragment {
                         characteristics.add(characteristicsArray.getString(j));
                     }
 
+                    //Extrae los datos de las imagenes y los convierte en una lista
                     JSONArray imagesArray = propertyJson.getJSONArray("images");
                     List<String> images = new ArrayList<>();
                     for (int j = 0; j < imagesArray.length(); j++) {
@@ -150,7 +145,6 @@ public class User_Fragment extends Fragment {
                     }
 
                     list.add(new Property(id, coordinates, price, availability, characteristics, images));
-                    Log.d("VerificaciónImages", Arrays.toString(images.toArray()));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -158,6 +152,7 @@ public class User_Fragment extends Fragment {
         }
     }
 
+    //Función para recibir la imagen principal de la propiedad
     private void fetchPropertyImages(String propertyId) {
         new Thread(() -> {
            try {
@@ -175,7 +170,6 @@ public class User_Fragment extends Fragment {
                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                String response = in.readLine();
                JSONObject jsonResponse = new JSONObject(response);
-               Log.d("Imagen", "Esta es la respuesta: " + response);
 
                if (jsonResponse.has("image_data")) {
                    String imageBase64 = jsonResponse.getString("image_data");
@@ -186,8 +180,8 @@ public class User_Fragment extends Fragment {
                    if (!propertyImagesMap.containsKey(propertyId)) {
                        propertyImagesMap.put(propertyId, new ArrayList<>());
                    }
+
                    propertyImagesMap.get(propertyId).add(decodedImage);
-                   Log.d("Imagen", "Si funciono");
                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                }
                socket.close();
@@ -232,10 +226,11 @@ public class User_Fragment extends Fragment {
             return propertyList.size();
         }
 
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //Clase interna para el ViewHolder que maneja la representación de cada ítem.
         static class PropertyViewHolder extends RecyclerView.ViewHolder {
             private ImageView imageView;
-            //private TextView idTextView;
             private TextView coordinatesTextView;
             private TextView priceTextView;
             private TextView availabilityTextView;
@@ -255,6 +250,7 @@ public class User_Fragment extends Fragment {
                     Log.d("Verificación", "Si toca la propiedad");
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
+
                         //Obtener la propiedad que se hizo clic
                         Property property = propertyList.get(position);
                         Intent intent = new Intent(context, AlquilerActivity.class);
@@ -272,7 +268,6 @@ public class User_Fragment extends Fragment {
 
             //Asigna los valores de cada propiedad a los TextViews
             public void bind(Property property, Map<String, List<Bitmap>> propertyImagesMap) {
-
                 coordinatesTextView.setText(property.getCoordinates());
                 priceTextView.setText(property.getPrice());
                 availabilityTextView.setText(property.getAvailability());

@@ -68,7 +68,6 @@ public class AlquilerActivity extends AppCompatActivity {
         //Obtener los datos del intent
         String propertyID = getIntent().getStringExtra("property_id");
         Log.d("Alquiler", "Este es el ID: " + propertyID);
-        //String propertyCoordinates = getIntent().getStringExtra("property_coordinates");
         String propertyPrice = getIntent().getStringExtra("property_price");
         String propertyAvailability = getIntent().getStringExtra("property_availability");
         String[] amenidadesArray = getIntent().getStringArrayExtra("property_amenidades");
@@ -79,7 +78,6 @@ public class AlquilerActivity extends AppCompatActivity {
         availabilityInput = findViewById(R.id.editTextAvailability);
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
-        Log.d("AlquilerImages", "Estas son las imagenes que me llegaron: " + Arrays.toString(propertyImages.toArray()));
 
         //Cargar imágenes desde el servidro
         new Thread(() -> loadImagesFromServer(propertyImages, propertyID)).start();
@@ -94,10 +92,9 @@ public class AlquilerActivity extends AppCompatActivity {
             }
         }).attach();
 
-        //Lamar a la función para configurar los textos
+        //Llamar a la función para configurar los textos
         SetText(propertyID, propertyPrice, propertyAvailability, propertyAmenidades);
 
-        //loadImages(propertyImages);
         availabilityInput.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 showAvailabilityPicker();
@@ -106,6 +103,7 @@ public class AlquilerActivity extends AppCompatActivity {
         });
     }
 
+    //Función para configurar los textos y manejar la acción de alquiler de una propiedad
     private void SetText(String ID, String Price, String Availability, List<String> Amenidades) {
         TextView textViewPrice = findViewById(R.id.textViewPrice);
         TextView textViewAvailability = findViewById(R.id.textViewAvailability);
@@ -120,10 +118,8 @@ public class AlquilerActivity extends AppCompatActivity {
         }
 
         buttonAlquiler.setOnClickListener(v -> {
-            Log.d("AlquilerActivity", "Botón presionado");
             new Thread(() -> {
                try {
-                   Log.d("AlquilerActivity", "Iniciando conexión con el servidor");
                     //Crear el objeto JSON con la información de la propiedad
                    JSONObject alquilerData = new JSONObject();
                    alquilerData.put("type", "alquiler");
@@ -142,7 +138,6 @@ public class AlquilerActivity extends AppCompatActivity {
                    //Cerrar la conexión
                    writer.close();
                    socket.close();
-
                    runOnUiThread(() -> Toast.makeText(this, "Solicitud de alquiler enviada", Toast.LENGTH_SHORT).show());
                } catch (Exception e) {
                    e.printStackTrace();
@@ -152,6 +147,7 @@ public class AlquilerActivity extends AppCompatActivity {
         });
     }
 
+    //Función para cargar las imágenes del server
     private void loadImagesFromServer(List<String> propertyImages, String ID) {
         new Thread(() -> {
             for (String imageName : propertyImages) {
@@ -170,8 +166,6 @@ public class AlquilerActivity extends AppCompatActivity {
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String response = in.readLine();
                     JSONObject jsonResponse = new JSONObject(response);
-                    Log.d("AlquilerImage", "Estas es la respuesta del servidor: " + response);
-                    //propertyImagesBase64.add(response);
 
                     if (jsonResponse.has("image_data")) {
                         String imageBase64 = jsonResponse.getString("image_data");
@@ -179,7 +173,6 @@ public class AlquilerActivity extends AppCompatActivity {
                         byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                         if (bitmap != null) {
-                            Log.d("AlquilerBitmap", "Si es diferente de nulo");
                             imageList.add(bitmap);
                             runOnUiThread(() -> adapter.notifyDataSetChanged());
                         }
@@ -194,7 +187,7 @@ public class AlquilerActivity extends AppCompatActivity {
         }).start();
     }
 
-
+    //Función para mostrar la dispoibilidad en calendario
     private void showAvailabilityPicker() {
         startDate = Calendar.getInstance();
         endDate = Calendar.getInstance();
@@ -207,6 +200,7 @@ public class AlquilerActivity extends AppCompatActivity {
         startDatePicker.show();
     }
 
+    //Función para mostrar la fecha final
     private void showEndDatePicker() {
         DatePickerDialog startDatePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             endDate.set(year, month, dayOfMonth);
@@ -220,6 +214,7 @@ public class AlquilerActivity extends AppCompatActivity {
         startDatePicker.show();
     }
 
+    //Función para actualizar la disponibilidad
     private void updateAvailabilityInput() {
         String start = startDate.get(Calendar.DAY_OF_MONTH) + "/" +
                 (startDate.get(Calendar.MONTH) + 1) + "/" +
@@ -231,21 +226,23 @@ public class AlquilerActivity extends AppCompatActivity {
     }
 
 
-
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder> {
+    // Clase adaptador personalizada para manejar la visualización de imágenes en un RecyclerView
+    protected class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder> {
         private List<String> imageList;
 
-        public ImagePagerAdapter(List<String> imageList) {
+        //Constructor de la clase
+        protected ImagePagerAdapter(List<String> imageList) {
             this.imageList = imageList;
         }
 
+        //Inflar el diseño de cada elemento del RecyclerView
         public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_item, parent, false);
             return  new ImageViewHolder(view);
         }
 
+        //Asociar datos de la lista a cada vista
         public void onBindViewHolder(ImageViewHolder holder, int position) {
             String base64Image = imageList.get(position);
             byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
@@ -253,14 +250,18 @@ public class AlquilerActivity extends AppCompatActivity {
             holder.imageView.setImageBitmap(decodedByte);
         }
 
+        //Obtener en número de elementos en la lista
         public int getItemCount() {
             return imageList.size();
         }
 
-        public class ImageViewHolder extends RecyclerView.ViewHolder {
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //Clase interna para mantener la referencia al ImageView de cada elemento
+        protected class ImageViewHolder extends RecyclerView.ViewHolder {
             ImageView imageView;
 
-            public ImageViewHolder(View itemView) {
+            //Inicializar el ImageView
+            protected ImageViewHolder(View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.imageView);
             }
