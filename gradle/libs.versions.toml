@@ -14,9 +14,12 @@ osmdroid = "6.1.13" # Versión de OSMDroid
 preference = "1.2.1"
 play_services_location = "21.3.0"
 activity = "1.9.3"
+rounded = "2.3.0"
+
 
 [libraries]
-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+rounded = { module = "com.makeramen: roundedimageview", version.ref = "rounded"}
+biometric = { module = "androidx.biometric:biometric",version.ref = "biometric" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

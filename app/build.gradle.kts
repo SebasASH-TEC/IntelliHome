@@ -47,4 +47,5 @@ dependencies {
     implementation(libs.preference)
     implementation(libs.play.services.location)
     implementation(libs.biometric)
+    implementation(libs.rounded)
 }

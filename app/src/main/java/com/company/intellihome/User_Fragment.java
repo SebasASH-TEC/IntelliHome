@@ -128,6 +128,7 @@ public class User_Fragment extends Fragment {
                 //Bucle para extraer objetos JSON
                 for (int i = 0; i < propiertiesArray.length(); i++){
                     JSONObject propertyJson = propiertiesArray.getJSONObject(i);
+                    Log.d("Verificacion propiedades", "Esta es la propiedad y lo que trae: " + Arrays.toString(propertiesArray));
 
                     //Extrae los datos
                     String id = propertyJson.getString("id");
@@ -142,7 +143,14 @@ public class User_Fragment extends Fragment {
                         characteristics.add(characteristicsArray.getString(j));
                     }
 
-                    list.add(new Property(id, coordinates, price, availability, characteristics));
+                    JSONArray imagesArray = propertyJson.getJSONArray("images");
+                    List<String> images = new ArrayList<>();
+                    for (int j = 0; j < imagesArray.length(); j++) {
+                        images.add(imagesArray.getString(j));
+                    }
+
+                    list.add(new Property(id, coordinates, price, availability, characteristics, images));
+                    Log.d("VerificaciónImages", Arrays.toString(images.toArray()));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -182,7 +190,6 @@ public class User_Fragment extends Fragment {
                    Log.d("Imagen", "Si funciono");
                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                }
-               Log.d("Imagen2", "No estaba lo de image_data");
                socket.close();
            } catch (Exception e) {
                e.printStackTrace();
@@ -243,7 +250,7 @@ public class User_Fragment extends Fragment {
                 availabilityTextView = itemView.findViewById(R.id.property_availability);
                 characteristicsTextView = itemView.findViewById(R.id.property_characteristics);
 
-                //Manejar los clic en el elemto del RecyclerView
+                //Manejar los clic en el elemento del RecyclerView
                 itemView.setOnClickListener(v -> {
                     Log.d("Verificación", "Si toca la propiedad");
                     int position = getAdapterPosition();
@@ -257,6 +264,7 @@ public class User_Fragment extends Fragment {
                         intent.putExtra("property_price", property.getPrice());
                         intent.putExtra("property_availability", property.getAvailability());
                         intent.putExtra("property_amenidades", property.getCharacteristics().toArray(new String[0]));
+                        intent.putExtra("property_images", property.getImages().toArray(new String[0]));
                         context.startActivity(intent);
                     }
                 });
@@ -287,13 +295,15 @@ public class User_Fragment extends Fragment {
         private String price;
         private String availability;
         private List<String> characteristics;
+        private List<String> images;
 
-        public Property(String id, String coordinates, String price, String availability, List<String> characteristics) {
+        public Property(String id, String coordinates, String price, String availability, List<String> characteristics, List<String> images) {
             this.id = id;
             this.coordinates = coordinates;
             this.price = price;
             this.availability = availability;
             this.characteristics = characteristics;
+            this.images = images;
         }
 
         //Métodos para acceder a los atributos de la clase
@@ -312,6 +322,6 @@ public class User_Fragment extends Fragment {
         public List<String> getCharacteristics(){
             return characteristics;
         }
-
+        public List<String> getImages() {return images;}
     }
 }

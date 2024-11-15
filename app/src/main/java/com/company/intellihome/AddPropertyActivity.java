@@ -360,16 +360,6 @@ public class AddPropertyActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == REQUEST_IMAGE_CAMERA && resultCode == RESULT_OK) {
-//            Bitmap photo = (Bitmap) data.getExtras().get("Data");
-//            try {
-//                Uri photoUri = getImageUriFromBitmap(photo);
-//                selectedPhotosUris.add(photoUri);
-//                updateSelectedPhotos();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-//            }
 
         if (requestCode == REQUEST_IMAGE_GALLERY) {
             Uri selectedImageUri = data.getData();
@@ -411,28 +401,6 @@ public class AddPropertyActivity extends AppCompatActivity {
         }
         return imageUri;
     }
-
-//    private Uri getImageUriFromBitmap(Bitmap bitmap) throws IOException {
-//        String uniqueFileName = "Nueva_Foto_" + System.currentTimeMillis() + ".jpg"; // Nombre de archivo único
-//        ContentValues values = new ContentValues();
-//        values.put(MediaStore.Images.Media.DISPLAY_NAME, uniqueFileName);
-//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-//        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
-//        Log.d("AddPhoto1", "Aqui esta pasando el error");
-//        Uri imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-//
-//        if (imageUri != null) {
-//            try (OutputStream outputStream = getContentResolver().openOutputStream(imageUri)) {
-//                if (outputStream != null) {
-//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-//                }
-//            }
-//        } else {
-//            Log.d("AddPhoto2", "Aqui esta pasando el error es null");
-//            throw new IOException("Failed to create new MediaStore record.");
-//        }
-//        return imageUri;
-//    }
 
     private void updateSelectedPhotos() {
         StringBuilder photosText = new StringBuilder("Fotos seleccionadas:\n");
