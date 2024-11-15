@@ -3,6 +3,7 @@ package com.company.intellihome;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -164,22 +165,6 @@ public class AddPropertyActivity extends AppCompatActivity {
                 propertyData.put("availability", availability);
                 propertyData.put("characteristics", new JSONArray(selectedItems));
 
-                // Agregar fotos en Base64 al JSON
-//                JSONArray photosArray = new JSONArray();
-//                for (Uri photoUri : selectedPhotosUris) {
-//                    String base64Photo = encodeImageToBase64(photoUri);
-//                    if (base64Photo != null) {
-//                        photosArray.put(base64Photo);
-//                    }
-//                }
-//                Log.d("Fotos", "Lista de fotos en base 64 tamaño: " + photosArray.length());
-//                propertyData.put("photos", photosArray);
-
-                // Imprimir el JSON para verificar su formato
-//                System.out.println("JSON Enviado: " + propertyData.toString());
-//                Log.d("JSON", "Esto es lo que se envio del JSON: " + propertyData.toString());
-//                Log.d("JSONLENGHT", "Y este es el tamaño: " + propertyData.toString().length());
-
                 // Enviar la información al servidor
                 Socket socket = new Socket(entities.Host, 1717);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -208,6 +193,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         for (Uri photoUri : selectedPhotosUris) {
             new Thread(() -> {
                 try {
+                    Log.d("SendImages", "Si entra");
                     //Construir JSON para la imagen
                     JSONObject imageData = new JSONObject();
                     imageData.put("type", "savePhotoProperty");
@@ -223,8 +209,10 @@ public class AddPropertyActivity extends AppCompatActivity {
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String response = in.readLine();
                     runOnUiThread(() -> Log.d("PhotoUpload", "Respuesta del servidor: " + response));
+                    Log.d("SendImages", "Si se envió");
                     socket.close();
                 } catch (Exception e) {
+                    Log.e("SendImages", "Es un error");
                     e.printStackTrace();
                     runOnUiThread(() -> Log.d("PhotoUpload", "Error al enviar la imagen."));
                 }
@@ -236,10 +224,12 @@ public class AddPropertyActivity extends AppCompatActivity {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);  // Reducimos la calidad para evitar un JSON demasiado grande
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, outputStream);  // Reducimos la calidad para evitar un JSON demasiado grande
             byte[] imageBytes = outputStream.toByteArray();
+            Log.d("AddPhoto3", "Si funciona todo bien");
             return android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP);  // Sin saltos de línea
         } catch (Exception e) {
+            Log.d("AddPhoto3", "Aqui esta pasando el error y este es el error: " + e);
             e.printStackTrace();
             return null;
         }
@@ -364,57 +354,85 @@ public class AddPropertyActivity extends AppCompatActivity {
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(cameraIntent, REQUEST_IMAGE_CAMERA);
+        Log.d("AddPhotoCAMERA", "Si abre la camara y todo bien");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAMERA && resultCode == RESULT_OK) {
-            Bitmap photo = (Bitmap) data.getExtras().get("Data");
-            try {
-                Uri photoUri = getImageUriFromBitmap(photo);
-                selectedPhotosUris.add(photoUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-            }
-
-//            if (requestCode == REQUEST_IMAGE_GALLERY) {
-//                Uri selectedImageUri = data.getData();
-//                if (selectedImageUri != null) {
-//                    selectedPhotosUris.add(selectedImageUri);
-//                    updateSelectedPhotos();
-//                }
-//            } else if (requestCode == REQUEST_IMAGE_CAMERA) {
-//                Bitmap photo = (Bitmap) data.getExtras().get("data");
+//        if (requestCode == REQUEST_IMAGE_CAMERA && resultCode == RESULT_OK) {
+//            Bitmap photo = (Bitmap) data.getExtras().get("Data");
+//            try {
 //                Uri photoUri = getImageUriFromBitmap(photo);
-//                if (photoUri != null) {
-//                    selectedPhotosUris.add(photoUri);
-//                    updateSelectedPhotos();
-//                }
+//                selectedPhotosUris.add(photoUri);
+//                updateSelectedPhotos();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
 //            }
+
+        if (requestCode == REQUEST_IMAGE_GALLERY) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                selectedPhotosUris.add(selectedImageUri);
+                updateSelectedPhotos();
+            }
+        } else if (requestCode == REQUEST_IMAGE_CAMERA) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            Uri photoUri = getImageUriFromBitmap(photo);
+            if (photoUri != null) {
+                selectedPhotosUris.add(photoUri);
+                updateSelectedPhotos();
+                Log.d("AddPhoto1", "Todo bien");
+            }
+            Log.d("AddPhoto1", "Aqui esta pasando el error es null");
         }
     }
 
-    private Uri getImageUriFromBitmap(Bitmap bitmap) throws IOException {
-        String uniqueFileName = "Nueva_Foto_" + System.currentTimeMillis() + ".jpg"; // Nombre de archivo único
+    private Uri getImageUriFromBitmap(Bitmap bitmap) {
+        Uri imageUri = null;
+        ContentResolver resolver = getContentResolver();
         ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, uniqueFileName);
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, "Nueva_Foto_" + System.currentTimeMillis() + ".jpg");
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/");
 
-        Uri imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        if (imageUri != null) {
-            try (OutputStream outputStream = getContentResolver().openOutputStream(imageUri)) {
-                if (outputStream != null) {
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        try {
+            imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (imageUri != null) {
+                OutputStream outStream = resolver.openOutputStream(imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                if (outStream != null) {
+                    outStream.close();
                 }
             }
-        } else {
-            throw new IOException("Failed to create new MediaStore record.");
+        } catch (IOException e) {
+            Log.e("AddPhoto2", "Error al guardar la imagen: " + e.getMessage());
         }
         return imageUri;
     }
+
+//    private Uri getImageUriFromBitmap(Bitmap bitmap) throws IOException {
+//        String uniqueFileName = "Nueva_Foto_" + System.currentTimeMillis() + ".jpg"; // Nombre de archivo único
+//        ContentValues values = new ContentValues();
+//        values.put(MediaStore.Images.Media.DISPLAY_NAME, uniqueFileName);
+//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+//        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
+//        Log.d("AddPhoto1", "Aqui esta pasando el error");
+//        Uri imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//
+//        if (imageUri != null) {
+//            try (OutputStream outputStream = getContentResolver().openOutputStream(imageUri)) {
+//                if (outputStream != null) {
+//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+//                }
+//            }
+//        } else {
+//            Log.d("AddPhoto2", "Aqui esta pasando el error es null");
+//            throw new IOException("Failed to create new MediaStore record.");
+//        }
+//        return imageUri;
+//    }
 
     private void updateSelectedPhotos() {
         StringBuilder photosText = new StringBuilder("Fotos seleccionadas:\n");
