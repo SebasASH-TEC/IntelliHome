@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -78,6 +79,7 @@ public class AddPropertyActivity extends AppCompatActivity {
     private Marker currentMarker;
     private GestureDetector gestureDetector;
     private Calendar startDate, endDate;
+    private ImageView backspaceImage;
 
 
     @Override
@@ -88,6 +90,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
 
         // Inicializa los elementos del layout
+        backspaceImage = findViewById(R.id.backspace_image2);
         mapView = findViewById(R.id.mapView);
         coordinatesEditText = findViewById(R.id.coordinates_edit_text);
         priceInput = findViewById(R.id.price_input);
@@ -105,6 +108,13 @@ public class AddPropertyActivity extends AppCompatActivity {
         setupMap();
         setupFilters();
         checkPermissions();
+
+        //Configuración para que se devuelva a la pantalla de Login
+        backspaceImage.setOnClickListener(v -> {
+            Intent intent = new Intent(AddPropertyActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
         availabilityInput.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {

@@ -236,13 +236,13 @@ public class User_Fragment extends Fragment {
 
 
             // Verifica si el mapa es null
-            if (propertyImagesMap != null) {
-                Log.d("User", "Mapa de imágenes no es null. Pasando al método bind. Y este es el imageMap: " + propertyImagesMap);
-                holder.bind(property, propertyImagesMap);  // Solo se pasa el mapa si no es null
-            } else {
-                Log.d("User", "Mapa de imágenes es null. No se pasa al método bind.");
-                holder.bind(property, null);
-            }
+            //if (propertyImagesMap != null) {
+            Log.d("User", "Mapa de imágenes no es null. Pasando al método bind. Y este es el imageMap: " + propertyImagesMap);
+            holder.bind(property, propertyImagesMap);  // Solo se pasa el mapa si no es null
+            //} else {
+              //  Log.d("User", "Mapa de imágenes es null. No se pasa al método bind.");
+                //holder.bind(property, null);
+            //}
         }
 
         @NonNull

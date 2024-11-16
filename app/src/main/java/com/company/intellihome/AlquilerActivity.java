@@ -2,6 +2,7 @@ package com.company.intellihome;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -58,7 +59,8 @@ public class AlquilerActivity extends AppCompatActivity {
     private ImagePagerAdapter adapter;
     private List<Bitmap> imageList = new ArrayList<>();
     private List<String> propertyImagesBase64 = new ArrayList<>();
-    TabLayout tabLayout;
+    private TabLayout tabLayout;
+    private ImageView backspaceImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,14 @@ public class AlquilerActivity extends AppCompatActivity {
         availabilityInput = findViewById(R.id.editTextAvailability);
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
+        backspaceImage = findViewById(R.id.backspace_image3);
+
+        //Configuración para que se devuelva a la pantalla de Login
+        backspaceImage.setOnClickListener(v -> {
+            Intent intent = new Intent(AlquilerActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
         //Cargar imágenes desde el servidro
         new Thread(() -> loadImagesFromServer(propertyImages, propertyID)).start();

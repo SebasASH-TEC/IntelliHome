@@ -38,6 +38,7 @@ public class HouseFilters_Fragment extends Fragment {
     private int priceSeekBar;
     private int personSeekBar;
     private Entities entities = new Entities();
+    private Map<String, List<Bitmap>> propertyImagesMap = new HashMap<>();
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class HouseFilters_Fragment extends Fragment {
         userFragment = new User_Fragment();
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new User_Fragment.PropertyAdapter(propertyList, getContext(), propertyImagesMap);
         recyclerView.setAdapter(adapter);
         characteristicsProperty = new ArrayList<>();
 
@@ -102,6 +104,13 @@ public class HouseFilters_Fragment extends Fragment {
                     }
                 }
 
+                for (User_Fragment.Property property: propertyList) {
+                    Log.d("Images", "Si entra a el for y este es el ID: " + property.getId());
+
+                    userFragment.fetchPropertyImages(property.getId(), propertyImagesMap, adapter, getContext());
+
+                    Log.d("Images", "Si entra a el for y esta es la propertyImagesMao: " + propertyImagesMap);
+                }
                 getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                 Log.d("Despues de Activity", "Si se enviaron los datos");
                 socket.close();
