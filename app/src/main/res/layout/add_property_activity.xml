@@ -66,7 +66,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Eliminar Regulaciones"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#A2CAEA"
+            android:textColor="@android:color/black"/>
 
         <!-- Disponibilidad -->
         <EditText
@@ -484,7 +486,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/acceptFiltrers"
-            android:text="Aceptar Filtros"/>
+            android:text="Aceptar Filtros"
+            android:backgroundTint="#A2CAEA"
+            android:textColor="@android:color/black"/>
 
         <!-- Amenidades seleccionadas -->
         <TextView
@@ -500,7 +504,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Eliminar Amenidades"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#A2CAEA"
+            android:textColor="@android:color/black"/>
 
         <!-- Botón para subir fotos -->
         <Button
@@ -508,7 +514,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Añadir Fotos"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#A2CAEA"
+            android:textColor="@android:color/black"/>
 
         <TextView
             android:id="@+id/selected_photos_text"
@@ -524,7 +532,9 @@
             android:id="@+id/save_property_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Guardar Propiedad" />
+            android:text="Guardar Propiedad"
+            android:backgroundTint="#A2CAEA"
+            android:textColor="@android:color/black"/>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
