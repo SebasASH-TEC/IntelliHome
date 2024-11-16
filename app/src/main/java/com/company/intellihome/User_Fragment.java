@@ -9,9 +9,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -99,7 +102,7 @@ public class User_Fragment extends Fragment {
 
                 //Solicita imágenes para cada propiedad
                 for (Property property: propertyList) {
-                    fetchPropertyImages(property.getId());
+                    fetchPropertyImages(property.getId(), propertyImagesMap, adapter, getContext());
                 }
 
                 getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
@@ -130,6 +133,8 @@ public class User_Fragment extends Fragment {
                     String price = propertyJson.getString("price");
                     String availability = propertyJson.getString("availability");
 
+                    Log.d("PropertyData", "ID: " + id + ", Coordinates: " + coordinates + ", Price: " + price + ", Availability: " + availability);
+
                     //Extrae los datos de las caracteristicas y los convierte en una lista
                     JSONArray characteristicsArray = propertyJson.getJSONArray("characteristics");
                     List<String> characteristics = new ArrayList<>();
@@ -153,11 +158,12 @@ public class User_Fragment extends Fragment {
     }
 
     //Función para recibir la imagen principal de la propiedad
-    private void fetchPropertyImages(String propertyId) {
+    protected void fetchPropertyImages(String propertyId, Map<String, List<Bitmap>> propertyImagesMap, PropertyAdapter adapter, Context context) {
         new Thread(() -> {
            try {
                Socket socket = new Socket(entities.Host, 1717);
 
+               Log.d("Fetch", "Si entro");
                //Crea un objeto JSON para solicitar las imágenes
                JSONObject requestData = new JSONObject();
                requestData.put("type", "getImage");
@@ -169,19 +175,35 @@ public class User_Fragment extends Fragment {
 
                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                String response = in.readLine();
+               Log.d("Response", "Todo bien y esta es la respuesta: " + response);
                JSONObject jsonResponse = new JSONObject(response);
 
                if (jsonResponse.has("image_data")) {
+                   Log.d("Ftech", "Si tiene image_data");
                    String imageBase64 = jsonResponse.getString("image_data");
                    byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
                    Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                   Log.d("Ftech", "Si se decodifico la imagen");
 
                    //Almacena a imagen en el mapa de la propiedad
                    if (!propertyImagesMap.containsKey(propertyId)) {
+                       Log.d("Fetch", "Si entro a esta vara rara");
                        propertyImagesMap.put(propertyId, new ArrayList<>());
+                       Log.d("Ftech", "Si subio la imagen en lo de propertyImagesMap");
                    }
 
                    propertyImagesMap.get(propertyId).add(decodedImage);
+                   Log.d("Ftech", "Si guardo");
+
+                   // Actualiza la UI en el contexto apropiado
+                   if (context instanceof FragmentActivity) {
+                       Log.d("Fragmento", "");
+                       ((FragmentActivity) context).runOnUiThread(() -> adapter.notifyDataSetChanged());
+                   } else {
+                       Log.d("Actividad", "");
+                       new Handler(Looper.getMainLooper()).post(() -> adapter.notifyDataSetChanged());
+                   }
+
                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                }
                socket.close();
@@ -205,19 +227,30 @@ public class User_Fragment extends Fragment {
             this.propertyImagesMap = propertyImagesMap;
         }
 
+        @Override
+        //Vincula cada propiedad en la lista con el ViewHolder
+        public void onBindViewHolder(PropertyViewHolder holder, int position) {
+            Log.d("User", "Esto es lo que se recibió en onBindViewHolder - Holder: " + holder + ", Position: " + position);
+            Property property = propertyList.get(position);
+            Log.d("User", "Propiedad en la posición: " + property.toString());  // Imprime detalles de la propiedad
+
+
+            // Verifica si el mapa es null
+            if (propertyImagesMap != null) {
+                Log.d("User", "Mapa de imágenes no es null. Pasando al método bind. Y este es el imageMap: " + propertyImagesMap);
+                holder.bind(property, propertyImagesMap);  // Solo se pasa el mapa si no es null
+            } else {
+                Log.d("User", "Mapa de imágenes es null. No se pasa al método bind.");
+                holder.bind(property, null);
+            }
+        }
+
         @NonNull
         @Override
         //Crea una nueva instancia de ViewHolder inflando el layout de cada ítem de la lista
         public PropertyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(context).inflate(R.layout.property_item, parent, false);
             return new PropertyViewHolder(view, context, propertyList);
-        }
-
-        @Override
-        //Vincula cada propiedad en la lista con el ViewHolder
-        public void onBindViewHolder(PropertyViewHolder holder, int position) {
-            Property property = propertyList.get(position);
-            holder.bind(property, propertyImagesMap);
         }
 
         @Override
@@ -268,15 +301,28 @@ public class User_Fragment extends Fragment {
 
             //Asigna los valores de cada propiedad a los TextViews
             public void bind(Property property, Map<String, List<Bitmap>> propertyImagesMap) {
+                Log.d("Adapter", "Bind llamado con propiedad: " + property.toString());
+                //Log.d("Adapter", "Y este es lo que se recibio de Map: " + propertyImagesMap);
+
                 coordinatesTextView.setText(property.getCoordinates());
                 priceTextView.setText(property.getPrice());
                 availabilityTextView.setText(property.getAvailability());
 
-                List<Bitmap> images = propertyImagesMap.get(property.getId());
-                if (images != null && !images.isEmpty()) {
-                    imageView.setImageBitmap(images.get(0));
-                } else {
+                if (propertyImagesMap == null) {
+                    Log.d("Adapter", "Mapa de imágenes es null. Mostrando placeholder y actualizando solo datos de la propiedad.");
                     imageView.setImageResource(R.drawable.placeholder);
+
+                } else {
+                    Log.d("Adapter", "Mapa de imágenes recibido: " + propertyImagesMap.toString());
+                    List<Bitmap> images = propertyImagesMap.get(property.getId());
+
+                    if (images != null && !images.isEmpty()) {
+                        Log.d("Adapter", "Se encontró una imagen para la propiedad con ID: " + property.getId());
+                        imageView.setImageBitmap(images.get(0));
+                    } else {
+                        Log.d("Adapter", "No se encontraron imágenes para la propiedad con ID: " + property.getId() + ". Mostrando placeholder.");
+                        imageView.setImageResource(R.drawable.placeholder);
+                    }
                 }
             }
         }
@@ -299,6 +345,17 @@ public class User_Fragment extends Fragment {
             this.availability = availability;
             this.characteristics = characteristics;
             this.images = images;
+        }
+
+        public String toString() {
+            return "Property{" +
+                    "id='" + id + '\'' +
+                    ", coordinates='" + coordinates + '\'' +
+                    ", price='" + price + '\'' +
+                    ", availability='" + availability + '\'' +
+                    ", characteristics=" + characteristics +
+                    ", images=" + images +
+                    '}';
         }
 
         //Métodos para acceder a los atributos de la clase

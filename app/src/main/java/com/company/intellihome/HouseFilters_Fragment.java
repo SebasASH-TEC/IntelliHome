@@ -1,5 +1,6 @@
 package com.company.intellihome;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -21,7 +22,9 @@ import java.net.Socket;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HouseFilters_Fragment extends Fragment {
     //Definir diferentes variables
@@ -100,6 +103,7 @@ public class HouseFilters_Fragment extends Fragment {
                 }
 
                 getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+                Log.d("Despues de Activity", "Si se enviaron los datos");
                 socket.close();
             } catch (Exception e){
                 e.printStackTrace();
@@ -138,6 +142,7 @@ public class HouseFilters_Fragment extends Fragment {
         private List<User_Fragment.Property> propertyList;
         private Entities entities = new Entities();
         private static Entities.Provincias Provincia;
+        private Map<String, List<Bitmap>> propertyImagesMap = new HashMap<>();
 
 //     public void onViewCreated(Bundle savedInstanceState) {
 //         super.onCreate(savedInstanceState);
@@ -158,6 +163,7 @@ public class HouseFilters_Fragment extends Fragment {
             userFragment = new User_Fragment();
             recyclerView = view.findViewById(R.id.recycler_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            adapter = new User_Fragment.PropertyAdapter(propertyList, getContext(), propertyImagesMap);
             recyclerView.setAdapter(adapter);
 
             fetchSearch();
@@ -197,6 +203,7 @@ public class HouseFilters_Fragment extends Fragment {
                    tempList.clear();
                    userFragment.AddPropertiesInList(jsonArrayString, tempList);
 
+                   Log.d("Search", "Si se hizo una lista la tempList: " + tempList);
                    for (int i = 0; i < tempList.size(); i++) {
                        String tempCoordinates = tempList.get(i).getCoordinates();
                        tempCoordinates = tempCoordinates.replace("(", "").replace(")", "");
@@ -211,6 +218,16 @@ public class HouseFilters_Fragment extends Fragment {
                         }
                    }
 
+                   for (User_Fragment.Property property: propertyList) {
+                       Log.d("Images", "Si entra a el for y este es el ID: " + property.getId());
+
+                       userFragment.fetchPropertyImages(property.getId(), propertyImagesMap, adapter, getContext());
+
+                       Log.d("Images", "Si entra a el for y esta es la propertyImagesMao: " + propertyImagesMap);
+                   }
+
+                   Log.d("Adapter", "Este es el adapter: " + adapter);
+                   Log.d("Adapter", "Y este es propertyList: " + propertyList);
                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                    socket.close();
                } catch (Exception e) {
@@ -224,7 +241,7 @@ public class HouseFilters_Fragment extends Fragment {
         //Función para convertir las provincias
         protected static Entities.Provincias ConvertProvincias(String provincia) {
             String normalizedProvincia = Normalizer.normalize(provincia, Normalizer.Form.NFD)
-                    .replace("\\p{M}", "").toLowerCase();
+                    .replaceAll("\\p{M}", "").toLowerCase();
 
             switch (normalizedProvincia) {
                 case "alajuela":

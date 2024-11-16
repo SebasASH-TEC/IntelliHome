@@ -228,11 +228,11 @@ public class AlquilerActivity extends AppCompatActivity {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Clase adaptador personalizada para manejar la visualización de imágenes en un RecyclerView
-    protected class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder> {
+    public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder> {
         private List<String> imageList;
 
         //Constructor de la clase
-        protected ImagePagerAdapter(List<String> imageList) {
+        public ImagePagerAdapter(List<String> imageList) {
             this.imageList = imageList;
         }
 
@@ -257,11 +257,11 @@ public class AlquilerActivity extends AppCompatActivity {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //Clase interna para mantener la referencia al ImageView de cada elemento
-        protected class ImageViewHolder extends RecyclerView.ViewHolder {
+        public class ImageViewHolder extends RecyclerView.ViewHolder {
             ImageView imageView;
 
             //Inicializar el ImageView
-            protected ImageViewHolder(View itemView) {
+            public ImageViewHolder(View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.imageView);
             }
