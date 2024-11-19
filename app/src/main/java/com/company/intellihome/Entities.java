@@ -1,5 +1,6 @@
 package com.company.intellihome;
 
+//Clase Global
 public class Entities {
     protected String Host = "192.168.1.42";
 

@@ -20,9 +20,7 @@ import org.json.JSONObject;
 import android.util.Log;
 
 public class LoginActivity extends AppCompatActivity {
-
     private Entities entities = new Entities();
-
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
@@ -46,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         setupForgotPasswordText();
     }
 
+    //Función para configurar el botón del Login
     private void setupLoginButton() {
         loginButton.setOnClickListener(v -> {
             String username = usernameEditText.getText().toString();
@@ -59,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //Función para enviar los datos al server
     private void sendLoginDataToServer(String username, String password) {
         new Thread(() -> {
             try {
@@ -85,15 +85,14 @@ public class LoginActivity extends AppCompatActivity {
                 writer.close();
                 reader.close();
                 socket.close();
-
                 runOnUiThread(() -> handleServerResponse(serverResponse));
-
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error al conectar con el servidor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
 
+    //Función para manejar la respuesta del servidor
     private void handleServerResponse(String response) {
         Log.d("LoginActivity", "Server Response: " + response.trim());
 
@@ -124,8 +123,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
-
+    //Función para configurar el botón de Registrarse
     private void setupRegisterButton() {
         registerButton.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -134,12 +132,14 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //Función para manejar la contraseña
     private void setupForgotPasswordText() {
         forgotPasswordText.setOnClickListener(v -> {
             showForgotPasswordDialog();
         });
     }
 
+    //Función para recuperar la contraseña
     private void showForgotPasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Recuperar Contraseña");
@@ -161,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
         builder.show();
     }
 
+    //Función que manea el envio de solicitud para recuperar la contraseña
     private void sendForgotPasswordRequest(String email) {
         new Thread(() -> {
             try {

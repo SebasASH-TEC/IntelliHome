@@ -24,7 +24,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class LightsActivity extends AppCompatActivity {
-
     private ImageView houseMap;
 
     private Entities entities = new Entities();

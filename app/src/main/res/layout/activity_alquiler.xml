@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F0FDFD"
+    android:padding="16dp"
+    tools:context=".AlquilerActivity">
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/backspace_image3"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_backspace_vector"
+        android:layout_gravity="start"/>
+
+    <!-- ViewPager2 for the image carousel -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginBottom="16dp"/>
+
+    <com.google.android.material.tabs.TabLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tabLayout"
+        app:tabIndicatorColor="@color/black"
+        app:tabSelectedTextAppearance="@color/black"
+        app:tabTextColor="@color/black"/>
+
+    <!-- Precio section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Precio:"
+        android:textSize="18dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewPrice"
+        android:textColor="@color/black"/>
+
+    <!-- Amenidades section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Amenidades:"
+        android:textSize="18dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewAmenidades"
+        android:textColor="@color/black"/>
+
+    <!-- Disponibilidad section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disponibilidad:"
+        android:textSize="18dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewAvailability"
+        android:textColor="@color/black"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextAvailability"
+        android:text="Seleccione el dia de incio y el último día"
+        android:textColor="@color/black"/>
+
+    <!-- Reglas section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reglas:"
+        android:textSize="18dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewRules"
+        android:textColor="@color/black"/>
+
+    <!-- Button for renting -->
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alquilar"
+        android:textColor="@color/black"
+        android:backgroundTint="#A2CAEA"
+        android:id="@+id/ButtonAlquilar" />
+
+  </LinearLayout>
+</androidx.core.widget.NestedScrollView>

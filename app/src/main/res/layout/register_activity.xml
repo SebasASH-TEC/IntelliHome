@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -13,6 +14,14 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+
+        <ImageView
+            android:id="@+id/backspace_image"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_backspace_vector"
+             android:layout_gravity="start"/>
+
         <!-- Botón para la imagen de perfil -->
         <Button
             android:id="@+id/profilePicButton"
@@ -20,10 +29,10 @@
             android:layout_height="48dp"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/purple_500"
+            android:backgroundTint="#A2CAEA"
             android:minHeight="48dp"
             android:text="@string/profile_pic_text"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/black" />
 
         <!-- Imagen de perfil -->
         <ImageView
@@ -178,10 +187,10 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_gravity="center"
-            android:backgroundTint="#040000"
+            android:backgroundTint="#A2CAEA"
             android:minHeight="48dp"
             android:text="@string/next_button_register"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 
