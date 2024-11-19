@@ -25,6 +25,7 @@ import java.net.Socket;
 
 public class LightsActivity extends AppCompatActivity {
     private ImageView houseMap;
+    private ImageView garageDoorImg;
 
     private Entities entities = new Entities();
 
@@ -43,6 +44,48 @@ public class LightsActivity extends AppCompatActivity {
             return insets;
         });
         houseMap = findViewById(R.id.houseMap);
+        garageDoorImg=findViewById(R.id.garageDoorImg);
+
+        garageDoorImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(LightsActivity.this,"Garege door toogled", Toast.LENGTH_SHORT).show();
+                new Thread(() -> {
+                    try {
+                        Socket socket = new Socket(entities.Host, 1717);
+                        OutputStream outputStream = socket.getOutputStream();
+                        PrintWriter writer = new PrintWriter(outputStream, true);
+
+                        JSONObject doorData = new JSONObject();
+                        doorData.put("type", "door");
+                        doorData.put("door", "Garage");
+
+                        writer.println(doorData.toString());
+                        writer.flush();
+
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        StringBuilder responseBuilder = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            responseBuilder.append(line);
+                        }
+                        String serverResponse = responseBuilder.toString();
+
+                        writer.close();
+                        reader.close();
+                        socket.close();
+
+                        runOnUiThread(() -> handleServerResponse(serverResponse));
+
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(LightsActivity.this, "Error al conectar con el servidor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
+                }).start();
+            }
+
+
+        });
 
         houseMap.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -87,7 +130,7 @@ public class LightsActivity extends AppCompatActivity {
             roomLight="Laundry room";
         } else if (isInGaraje(x, y)) {
             toogleLight("Garaje");
-            roomLight="Garage";
+            roomLight="Garaje";
         }else{
             toogleLight("No seleccionó una habitación valida");
             roomLight="None";
@@ -143,12 +186,12 @@ public class LightsActivity extends AppCompatActivity {
 
             if (status.equals("SUCCESS")) {
                 String roomLight = parts[1]; // Obtener la habitacion con la que se desea interactuar
-                Toast.makeText(LightsActivity.this, "Interaccion con luz de " + roomLight, Toast.LENGTH_SHORT).show();
+                Toast.makeText(LightsActivity.this, "Interaccion con " + roomLight, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LightsActivity.this, HomeActivity.class);
                 startActivity(intent);
                 finish();
             } else {
-                String errorMessage = "Fallo al interactuar con luz de " + parts[1]; // Obtener la habitacion con la que se dessea interactuar
+                String errorMessage = "Fallo al interactuar con " + parts[1]; // Obtener la habitacion con la que se dessea interactuar
                 Toast.makeText(LightsActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
@@ -185,6 +228,7 @@ public class LightsActivity extends AppCompatActivity {
         Toast.makeText(this, room + " lights toogled", Toast.LENGTH_SHORT).show();
 
     }
+
 
     // Método para enviar la solicitud de alternar la luz
     private void sendToggleLightRequest(String room) {
