@@ -14,7 +14,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class LightsActivity extends AppCompatActivity {
-
     private ImageView houseMap;
 
     @Override

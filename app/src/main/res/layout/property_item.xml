@@ -6,13 +6,11 @@
     android:padding="16dp"
     android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/property_id"
+        <ImageView
+            android:id="@+id/property_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ID"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+            />
 
         <TextView
             android:id="@+id/property_coordinates"

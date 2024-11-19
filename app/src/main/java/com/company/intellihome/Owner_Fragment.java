@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 public class Owner_Fragment extends Fragment {
 
     @Override
@@ -22,9 +21,5 @@ public class Owner_Fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
-
-
-
-
     }
 }

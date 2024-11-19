@@ -3,11 +3,14 @@ package com.company.intellihome;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
@@ -21,6 +24,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,9 +48,12 @@ import org.osmdroid.views.overlay.Marker;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -62,7 +69,6 @@ public class AddPropertyActivity extends AppCompatActivity {
 
     private MapView mapView;
     private EditText coordinatesEditText, priceInput, rulesInput, availabilityInput;
-    private Spinner featuresSpinner;
     private TextView selectedFeatures, selectedRules, selectedPhotosText;
     private Button uploadPhotosButton;
     private List<CheckBox> ListFilters = new ArrayList<>();                             //Se va a usar
@@ -73,6 +79,8 @@ public class AddPropertyActivity extends AppCompatActivity {
     private Marker currentMarker;
     private GestureDetector gestureDetector;
     private Calendar startDate, endDate;
+    private ImageView backspaceImage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +90,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
 
         // Inicializa los elementos del layout
+        backspaceImage = findViewById(R.id.backspace_image2);
         mapView = findViewById(R.id.mapView);
         coordinatesEditText = findViewById(R.id.coordinates_edit_text);
         priceInput = findViewById(R.id.price_input);
@@ -96,10 +105,16 @@ public class AddPropertyActivity extends AppCompatActivity {
         Button removeRuleButton = findViewById(R.id.remove_rule_button);
         Button savePropertyButton = findViewById(R.id.save_property_button); // Nuevo botón
 
-
         setupMap();
         setupFilters();
         checkPermissions();
+
+        //Configuración para que se devuelva a la pantalla de Login
+        backspaceImage.setOnClickListener(v -> {
+            Intent intent = new Intent(AddPropertyActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
         availabilityInput.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -128,7 +143,6 @@ public class AddPropertyActivity extends AppCompatActivity {
         // Asignar la función saveProperty() al botón de guardar propiedad
         savePropertyButton.setOnClickListener(v -> saveProperty());
 
-
         uploadPhotosButton.setOnClickListener(v -> showPhotoSelectionDialog());
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
@@ -141,6 +155,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         });
     }
 
+    //Función para guardar la propiedad
     private void saveProperty() {
         new Thread(() -> {
             try {
@@ -160,19 +175,6 @@ public class AddPropertyActivity extends AppCompatActivity {
                 propertyData.put("availability", availability);
                 propertyData.put("characteristics", new JSONArray(selectedItems));
 
-                // Agregar fotos en Base64 al JSON
-                JSONArray photosArray = new JSONArray();
-                for (Uri photoUri : selectedPhotosUris) {
-                    String base64Photo = encodeImageToBase64(photoUri);
-                    if (base64Photo != null) {
-                        photosArray.put(base64Photo);
-                    }
-                }
-                propertyData.put("photos", photosArray);
-
-                // Imprimir el JSON para verificar su formato
-                System.out.println("JSON Enviado: " + propertyData.toString());
-
                 // Enviar la información al servidor
                 Socket socket = new Socket(entities.Host, 1717);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -183,12 +185,10 @@ public class AddPropertyActivity extends AppCompatActivity {
                 String response = in.readLine();
                 runOnUiThread(() -> {
                     Toast.makeText(this, response, Toast.LENGTH_SHORT).show();
-                    if (response == "Propiedad guardada exitosamente.") {
-                        Log.d("AddProperty", "Si se agrego bien");
-                    }
                 });
 
                 socket.close();
+                sendPropertyImages(propertyId);
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(this, "Error al enviar la propiedad.", Toast.LENGTH_SHORT).show());
@@ -196,12 +196,41 @@ public class AddPropertyActivity extends AppCompatActivity {
         }).start();
     }
 
+    //Función para enviar las imágenes una por una al servidor
+    private void sendPropertyImages(String propertId) {
+        for (Uri photoUri : selectedPhotosUris) {
+            new Thread(() -> {
+                try {
+                    //Construir JSON para la imagen
+                    JSONObject imageData = new JSONObject();
+                    imageData.put("type", "savePhotoProperty");
+                    imageData.put("propertyId", propertId);
+                    imageData.put("photo", encodeImageToBase64(photoUri));
 
+                    //Enviar la imagen al servidor
+                    Socket socket = new Socket(entities.Host, 1717);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    out.println(imageData.toString());
+
+                    //Recibir la respuesta del servidor
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String response = in.readLine();
+                    runOnUiThread(() -> Log.d("PhotoUpload", "Respuesta del servidor: " + response));
+                    socket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> Log.d("PhotoUpload", "Error al enviar la imagen."));
+                }
+            }).start();
+        }
+    }
+
+    //Función para codificar una iagen desde una Uri a una cadena Base64
     private String encodeImageToBase64(Uri imageUri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);  // Reducimos la calidad para evitar un JSON demasiado grande
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, outputStream);  // Reducimos la calidad para evitar un JSON demasiado grande
             byte[] imageBytes = outputStream.toByteArray();
             return android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP);  // Sin saltos de línea
         } catch (Exception e) {
@@ -210,7 +239,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         }
     }
 
-
+    //Función para verificar los permismos
     private void checkPermissions() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -219,6 +248,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         }
     }
 
+    //Función para configurar el mapa
     private void setupMap() {
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
@@ -236,6 +266,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         });
     }
 
+    //Función para verificar la Ubicación
     private void checkLocationPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -245,6 +276,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         }
     }
 
+    //Función para mostrar la ubicación
     @SuppressLint("MissingPermission")
     private void showCurrentLocation() {
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
@@ -259,6 +291,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         });
     }
 
+    //Función para agregar el marcador de la ubicación
     private void addMarkerAtLocation(GeoPoint point) {
         if (currentMarker != null) {
             mapView.getOverlays().remove(currentMarker);
@@ -276,6 +309,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         mapView.invalidate();
     }
 
+    //Función para mostrar el calendario
     private void showAvailabilityPicker() {
         startDate = Calendar.getInstance();
         endDate = Calendar.getInstance();
@@ -288,6 +322,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         startDatePicker.show();
     }
 
+    //Función para elegir la fecha final
     private void showEndDatePicker() {
         DatePickerDialog endDatePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             endDate.set(year, month, dayOfMonth);
@@ -297,6 +332,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         endDatePicker.show();
     }
 
+    //Función para actualizar la disponibilidad
     private void updateAvailabilityInput() {
         String start = startDate.get(Calendar.DAY_OF_MONTH) + "/" +
                 (startDate.get(Calendar.MONTH) + 1) + "/" +
@@ -307,6 +343,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         availabilityInput.setText("Disponible del " + start + " al " + end);
     }
 
+    //Función para mostrar la elección de la foto
     private void showPhotoSelectionDialog() {
         String[] options = {"Seleccionar de la galería", "Tomar una foto"};
         new AlertDialog.Builder(this)
@@ -317,46 +354,71 @@ public class AddPropertyActivity extends AppCompatActivity {
                     } else {
                         openCamera();
                     }
-                })
-                .show();
+                }).show();
     }
 
+    //Función para abrir la Galería
     private void openGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(galleryIntent, REQUEST_IMAGE_GALLERY);
     }
 
+    //Función para abrir la cámara
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(cameraIntent, REQUEST_IMAGE_CAMERA);
     }
 
+    // Método que maneja el resultado de actividades para seleccionar imágenes de la galería o capturadas por la cámara
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && data != null) {
-            if (requestCode == REQUEST_IMAGE_GALLERY) {
-                Uri selectedImageUri = data.getData();
-                if (selectedImageUri != null) {
-                    selectedPhotosUris.add(selectedImageUri);
-                    updateSelectedPhotos();
-                }
-            } else if (requestCode == REQUEST_IMAGE_CAMERA) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                Uri photoUri = getImageUriFromBitmap(photo);
-                if (photoUri != null) {
-                    selectedPhotosUris.add(photoUri);
-                    updateSelectedPhotos();
-                }
+
+        //Verifica si la solicitud proviene de la selección de imagen de la galería cámara
+        if (requestCode == REQUEST_IMAGE_GALLERY) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                selectedPhotosUris.add(selectedImageUri);
+                updateSelectedPhotos();
+            }
+        } else if (requestCode == REQUEST_IMAGE_CAMERA) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            Uri photoUri = getImageUriFromBitmap(photo);
+            if (photoUri != null) {
+                selectedPhotosUris.add(photoUri);
+                updateSelectedPhotos();
             }
         }
     }
 
+    // Método para guardar un Bitmap como un archivo de imagen en el almacenamiento externo y devolver su URI
     private Uri getImageUriFromBitmap(Bitmap bitmap) {
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Nueva Foto", null);
-        return Uri.parse(path);
+        Uri imageUri = null;
+        ContentResolver resolver = getContentResolver();
+        ContentValues values = new ContentValues();
+
+        //Configura los metadatos para la imagen a guardar
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, "Nueva_Foto_" + System.currentTimeMillis() + ".jpg");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/");
+
+        try {
+            //Inserta una nueva entrada en MediaStore y obtiene la URI
+            imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (imageUri != null) {
+                OutputStream outStream = resolver.openOutputStream(imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                if (outStream != null) {
+                    outStream.close();
+                }
+            }
+        } catch (IOException e) {
+            Log.e("AddPhoto", "Error al guardar la imagen: " + e.getMessage());
+        }
+        return imageUri;
     }
 
+    //Función para actualizar la selección de fotos
     private void updateSelectedPhotos() {
         StringBuilder photosText = new StringBuilder("Fotos seleccionadas:\n");
         for (Uri uri : selectedPhotosUris) {
@@ -365,39 +427,34 @@ public class AddPropertyActivity extends AppCompatActivity {
         selectedPhotosText.setText(photosText.toString());
     }
 
+    //Función para configurar los filtros
     private void setupFilters() {
-//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//        View filterView = inflater.inflate(R.layout.add_property_activity, null);.
         View filterView = findViewById(android.R.id.content);
 
+        //Verifica si el objeto filtersFeatures ha sido incializado
         if (filtersFeatures != null) {
             filtersFeatures.AddAmenidades(filterView, ListFilters);
             selectedItems.clear();
 
-
+            //Actualiza la lista de elementos seleccionados
             filtersFeatures.CheckBoxSelections(selectedItems, ListFilters);
-            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedItems);
-
         } else {
-            Log.e("setupFilters", "filtersFeatures es null. Asegúrate de inicializarlo correctamente antes de llamar a setupFilters.");
+            Log.d("FiltersSeñections", "filtersFeatures es null.");
         }
-        Log.d("Funcionamiento", "si funciona despues de verificar si es null");
-        Button applyFilters = filterView.findViewById(R.id.acceptFiltrers);
 
-        Log.d("Funcionamiento", "Si consigue el id del boton");
+        //Configura el botón para aplicar los filtros
+        Button applyFilters = filterView.findViewById(R.id.acceptFiltrers);
         applyFilters.setOnClickListener(v -> {
             Toast.makeText(this, "Filtros aplicados", Toast.LENGTH_SHORT).show();
 
+            //Limpia y actualiza la lista de elementos seleccionados
             selectedItems.clear();
-
             filtersFeatures.CheckBoxSelections(selectedItems, ListFilters);
-            Log.d("FiltersSelections", "Filtros seleccionados: " + selectedItems);
             updateSelectedFeatures();
         });
-
-
     }
 
+    //Función para actualizar la selección de amenidades
     private void updateSelectedFeatures() {
         StringBuilder featuresText = new StringBuilder("Amenidades seleccionadas:\n");
         for (String feature : selectedItems) {
@@ -406,6 +463,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         selectedFeatures.setText(featuresText.toString());
     }
 
+    //Función para mostrar y agregar una regla
     private void showAddRuleDialog() {
         final EditText input = new EditText(this);
         input.setHint("Ingrese la ley");
@@ -423,6 +481,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                 .show();
     }
 
+    //Función para actualizar la selección de reglas
     private void updateSelectedRules() {
         StringBuilder rulesText = new StringBuilder("Leyes seleccionadas:\n");
         for (String rule : rulesList) {
@@ -431,6 +490,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         selectedRules.setText(rulesText.toString());
     }
 
+    //Función para mostrar la eliminación de amenidades
     private void showRemoveFeaturesDialog() {
         String[] selectedArray = selectedItems.toArray(new String[0]);
         boolean[] checkedItems = new boolean[selectedArray.length];
@@ -452,6 +512,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                 .show();
     }
 
+    //Función para mostrar la eliminacióm de reglas
     private void showRemoveRulesDialog() {
         String[] rulesArray = rulesList.toArray(new String[0]);
         boolean[] checkedItems = new boolean[rulesArray.length];
@@ -473,6 +534,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                 .show();
     }
 
+    //Función para mostrar y agregar el precio por noche
     private void showPriceInputDialog() {
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -492,7 +554,4 @@ public class AddPropertyActivity extends AppCompatActivity {
                 .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
                 .show();
     }
-
-
-
 }
