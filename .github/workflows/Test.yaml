@@ -1,43 +1,58 @@
-name: Android Instrumented Tests
+name: Android Tests
 
 on:
   push:
-    branches: ["develop"]
+    branches:
+      - develop
   pull_request:
-    branches: ["develop"]
+    branches:
+      - develop
 
 jobs:
   android-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 31
-          build-tools: 31.0.0
-          target: google_apis
+      - name: Install Android SDK and Platform Tools
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          mkdir -p $ANDROID_SDK_ROOT
+          
+          # Descargar las herramientas de línea de comando
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $ANDROID_SDK_ROOT
+          mv $ANDROID_SDK_ROOT/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
 
-      - name: Start AVD
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31
-          target: google_apis
-          arch: x86_64
-          profile: pixel_5
-          disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest --info
+          # Aceptar licencias
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      - name: Upload Android Test Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-test-report
-          path: app/build/reports/androidTests/connected/
+          # Instalar platform-tools y otros componentes necesarios
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64" "platforms;android-30"
+
+          # Añadir platform-tools al PATH
+          echo "export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH" >> $GITHUB_ENV
+
+      - name: Create and Start Emulator
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" -d "pixel"
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot-load -noaudio -no-boot-anim -accel auto -gpu swiftshader &
+          sleep 60
+
+      - name: Wait for Emulator to Boot
+        run: adb wait-for-device
+
+      - name: Run Android Instrumented Tests
+        run: ./gradlew connectedDebugAndroidTest
+
+      - name: Stop Emulator
+        run: adb emu kill
