@@ -15,6 +15,10 @@ preference = "1.2.1"
 play_services_location = "21.3.0"
 activity = "1.9.3"
 rounded = "2.3.0"
+mockito = "5.5.0"
+robolectric = "4.10"
+android-test = "1.5.0"
+fragmentTesting = "1.8.5"  # Versión para android.test
 
 
 [libraries]
@@ -33,6 +37,11 @@ osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" 
 preference = { module = "androidx.preference:preference", version.ref = "preference" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play_services_location" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+android-test-rules = { module = "androidx.test:rules", version.ref = "android-test" }
+android-test-core = { module = "androidx.test:core", version.ref = "android-test" }
+fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragmentTesting" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

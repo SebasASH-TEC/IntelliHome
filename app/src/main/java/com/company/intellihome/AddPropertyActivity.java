@@ -68,7 +68,10 @@ public class AddPropertyActivity extends AppCompatActivity {
     private Entities entities = new Entities();
 
     private MapView mapView;
-    private EditText coordinatesEditText, priceInput, rulesInput, availabilityInput;
+    EditText coordinatesEditText;
+    EditText priceInput;
+    private EditText rulesInput;
+    EditText availabilityInput;
     private TextView selectedFeatures, selectedRules, selectedPhotosText;
     private Button uploadPhotosButton;
     private List<CheckBox> ListFilters = new ArrayList<>();                             //Se va a usar
@@ -197,7 +200,7 @@ public class AddPropertyActivity extends AppCompatActivity {
     }
 
     //Función para enviar las imágenes una por una al servidor
-    private void sendPropertyImages(String propertId) {
+    void sendPropertyImages(String propertId) {
         for (Uri photoUri : selectedPhotosUris) {
             new Thread(() -> {
                 try {
