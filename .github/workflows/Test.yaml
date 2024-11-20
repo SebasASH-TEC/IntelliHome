@@ -1,4 +1,4 @@
-name: Test Android Instrumented Tests
+name: Android Instrumented Tests
 
 on:
   push:
@@ -34,9 +34,7 @@ jobs:
           arch: x86_64
           profile: pixel_5
           disable-animations: true
-
-      - name: Run Android Instrumented Tests
-        run: ./gradlew connectedDebugAndroidTest --info
+          script: ./gradlew connectedDebugAndroidTest --info
 
       - name: Upload Android Test Report
         uses: actions/upload-artifact@v3
