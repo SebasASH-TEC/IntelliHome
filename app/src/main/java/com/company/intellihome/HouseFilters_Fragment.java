@@ -135,7 +135,7 @@ public class HouseFilters_Fragment extends Fragment {
     }
 
     //Función para verificar la SeeKBar del Precio
-    private boolean VerifySeekBar(String priceString) {
+    protected boolean VerifySeekBar(String priceString) {
         String cleandePrice = priceString.replaceAll("[^\\d]", "");
         int price = Integer.parseInt(cleandePrice);
         return price <= priceSeekBar;
